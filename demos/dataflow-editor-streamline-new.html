@@ -365,6 +365,18 @@ d3.select("#show_example").on("click", function() {
   e.import(example);
 });
   
+//convert the template into a single module  
+d3.select("#combine_mods").on("click", function() {
+  
+  //if nothing to combine, do nothing
+  
+  //inputs have to have outputs
+  
+  //combine and create a new mod
+  
+  //remove the previous mods
+});
+  
 function loadData() {
   
     var file = document.getElementById('upload_template').files[0]; // only one file allowed
@@ -381,18 +393,6 @@ function loadData() {
 }
   
 d3.select("#upload_template").on("change", loadData);
-}
-
-//function to combine inputs and outputs
-function combineMods(){
- 
-  //if nothing to combine, do nothing
-  
-  //inputs have to have outputs
-  
-  //combine and create a new mod
-  
-  //remove the previous mods
 }
   
 </script>
