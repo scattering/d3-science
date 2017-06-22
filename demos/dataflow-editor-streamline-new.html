@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style>
+  
 html, body {
   height: 100%;
   overflow: hidden;
 }
+  
 svg {
   width: 100%;
   height: 100%;
@@ -19,9 +21,11 @@ svg {
   width: 100%;
   height: 100%;
 }
+  
 .highlight {
   fill-opacity: 0.6 !important;
 }
+  
 .popup {
     position: absolute;
     background-color: #fff;
@@ -32,6 +36,7 @@ svg {
     font-family: arial, helvetica, sans-serif;
     margin: 5px 5px 2px 2px;
 }
+  
 .popup ul {
     padding: 5px;
     list-style-type: none;
@@ -63,8 +68,7 @@ g.module rect {
   stroke-width: 2px;
   stroke: blue;
   cursor: move;
-  //fill: white;
-  fill: purple;
+  fill: white;
 }
 
 g.module rect.title {
@@ -83,6 +87,9 @@ rect.terminal.input {
   fill:  #88FF88;
 }
 
+//classes for new template/module
+//combination of inputs and outputs
+  
 path.wire {
   fill: none;
   stroke-width: 5px;
@@ -189,6 +196,7 @@ var module_opts = [
     }
 ];
 
+//example template
 example = {
     //modules: expand_module_defs(module_opts, 'ncnr.refl'),
     modules: module_opts,
@@ -236,16 +244,22 @@ example = {
     ]
 }
 
+//expands the module  
 function expand_module_defs(modules, instrument) {
+  
   var output = [],
       module_defs = instruments[instrument].modules;
+  
+  //go through the modules
   for (var i=0; i<modules.length; i++) {
+    
     var m = modules[i];
     output[i] = m;
     output[i].terminals = module_defs[m.module].terminals;
     output[i].fields = module_defs[m.module].fields;
   }
-  return output
+  
+  return output;
 }
 
 e = new dataflowEditorStreamlineNew.editor(null, true);
@@ -253,16 +267,20 @@ e.module_defs(instruments[current_instrument].modules);
 e.data([{modules: [], wires: []}]);
 d3.select("#editor_div").call(e);
 
-
 var contextMenuShowing = false;
 
 e.svg().on('contextmenu',function (d,i) {
+  
     if (contextMenuShowing) {
         d3.event.preventDefault();
         d3.select(".popup").remove();
         contextMenuShowing = false;
-    } else {
+      
+    }
+    else {
+      
         d3_target = d3.select(d3.event.target);
+      
         if (d3_target.classed("wire")) {
             d3.event.preventDefault();
             contextMenuShowing = true;
@@ -276,24 +294,30 @@ e.svg().on('contextmenu',function (d,i) {
             .append("ul")
             
             popup.append("li").text("delete").on("click", function() {
+              
                 var active_data = d3_target.datum();
                 var parentNode = d3_target.node().parentNode;
                 var wires = d3.select(parentNode).datum().wires;
+              
                 for (var i=0; i<wires.length; i++) {
                     var w = wires[i]; 
+                  
                     if (w.source == active_data.source && w.target == active_data.target) {
                         wires.splice(i,1);
                         break;
                     }
                 };
+              
                 parentNode.update();
                 d3.select(".popup").remove(); 
                 contextMenuShowing=false;
-                
             });
+          
             console.log(popup);
         }
+      
         else if (d3_target.classed("title")) {
+          
             d3.event.preventDefault();
             contextMenuShowing = true;
 
@@ -345,6 +369,7 @@ d3.select("#show_example").on("click", function() {
   e.import(example);
 });
 
+//loads the data from the file
 function loadData() {
     var file = document.getElementById('upload_template').files[0]; // only one file allowed
     datafilename = file.name;
@@ -360,6 +385,17 @@ function loadData() {
 d3.select("#upload_template").on("change", loadData);
 
 }
+
+//combine inputs and outputs together into one module
+function combine(){
+  
+  //if there is no template to select, does nothing
+  
+  //input has to have an output
+  
+  //green is data, blue is for output
+}
+  
 </script>
 <div id="controls">
     <select id="new_module">
@@ -368,6 +404,8 @@ d3.select("#upload_template").on("change", loadData);
     <button id="show_example">Load example template</button>
     <input id="upload_template" type="file" multiple="false" name="upload_template" />
     <button id="show_value">Show data</button>
+    <button id = "combine_mods">Combine modules</button>
+  
 </div>
 <div id="editor_div">
 </div>
