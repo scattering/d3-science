@@ -123,7 +123,7 @@ function editor(data, autosize_modules) {
 
   //updates the modules and their wires
   function update() {
-	
+
     var id_to_index = {},
         old_ids = {},
         new_ids = {},
@@ -156,7 +156,7 @@ function editor(data, autosize_modules) {
     en.append(module); // .each(function(d) {additions.push(d.module_id)});
     module_update.exit()/*.each(function(d) {removals.push(d.module_id)})*/.remove();
     module_update.attr("index", function(d,i) {return i});
-    svg.selectAll(".module").each(function(d,i) { new_ids[d.module_id] = i });
+    svg.selectAll(".module").each(function(d,i) {new_ids[d.module_id] = i });
 	
 	//if ii is in the old IDs
     for (var ii in old_ids) {
@@ -189,7 +189,7 @@ function editor(data, autosize_modules) {
   
   //returns the terminal position
   function get_terminal_pos(term_id) {
-	  
+
     var module = container.select('.module[index="' + term_id[0] + '"]');
     var terminal = module.select('.terminal[terminal_id="' + term_id[1] + '"]');
 	
@@ -556,13 +556,13 @@ function editor(data, autosize_modules) {
       .classed("title", true)
 	
 	inputs = group.selectAll(".inputs")
-      .data(input_terminals)
+      .data(input_terminals)  
       .enter().append("g")
       .classed("terminals", true)
       .classed("inputs", true)
       
     outputs = group.selectAll(".outputs")
-      .data(output_terminals)
+      .data(output_terminals) 
       .enter().append("g")
       .classed("terminals", true)
       .classed("outputs", true)
@@ -678,7 +678,6 @@ function editor(data, autosize_modules) {
 	
 	//add output elements to group	
     outputs
-		.attr("transform", function(d,i) {return "translate(" + width.toFixed() + "," + (height * i).toFixed() + ")"}) 
         .append("text")
         .classed("output label", true)
         .attr("x", curX) 
@@ -691,10 +690,11 @@ function editor(data, autosize_modules) {
 	if(moduleType === "single"){
 		
 		outputs.append("rect")
+			.attr("transform", function(d,i) {return "translate(" + width.toFixed() + "," + (height * i).toFixed() + ")"}) 
 			.classed("terminal output", true)
 			.attr("width", 20) 
 			.attr("height", height)
-			.attr("x", curX) 
+			.attr("x", curX ) 
 			.attr("y", curY) 
 			.attr("wireoffset_x", 20)
 			.attr("wireoffset_y", height/2)
@@ -717,14 +717,14 @@ function editor(data, autosize_modules) {
 					.classed("terminal output", true)
 					.attr("width", 20) 
 					.attr("height", height)
-					.attr("x", curX) 
+					.attr("x", curX + width) 
 					.attr("y", curY + (i * 30)) 
 					.attr("wireoffset_x", 0) 
 					.attr("wireoffset_y", height/2)
 					.attr("terminal_id", function(d) {return d.id})
 					.call(wireaction)
 					.append("svg:title")
-					.text(function(d) { return d.id; });
+					.text(module_data.id); //.text(function(d) { return d.id; });
 			}
 			
 			//if not an edge input terminal
@@ -734,7 +734,7 @@ function editor(data, autosize_modules) {
 					.classed("terminal output", true)
 					.attr("width", 20) 
 					.attr("height", height)
-					.attr("x", curX) 
+					.attr("x", curX + width) 
 					.attr("y", curY + (i * 30)) 
 					.attr("wireoffset_x", 0) 
 					.attr("wireoffset_y", height/2)
@@ -772,6 +772,7 @@ function editor(data, autosize_modules) {
 	var curY = 0;
 	var addedModules = []
 	var loc = 0;
+	var numModulesAdded = 0;
 	
 	//go through the wires
     for (var i=0; i < wires.length; i++) {
@@ -822,74 +823,95 @@ function editor(data, autosize_modules) {
 	
 	inputEdge = true;
 	outputEdge = false;
-	
+		
+	curY = addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, edgeSources[0], wires, addedModules, mods, loc);
+		
 	//go through the sources
-	for(var i = 0; i < edgeSources.length; i++)
+	for(var i = 1; i < edgeSources.length; i++){
+
+		//look at previous row to check to see if need to move up the y coordinate
+		for(var j = numModulesAdded; j < addedModules.length; j++){ 
+				
+			var curModule = addedModules[j];
+			var curWires = getTargetWires(wires, curModule);
+				
+			//if the added module has more connected inputs
+			if(curWires.length > 1){
+				
+				curY += 30; //to-do: add by number of used inputs
+				break;
+			}
+		}
+			
+		numModulesAdded = addedModules.length;	
+		inputEdge = true;
+		outputEdge = false;
+		
 		curY = addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, edgeSources[i], wires, addedModules, mods, loc);
+	}
   }
-  
+ 
   //adds the modules (recursive if a module has multiple inputs or outputs wired)
   function addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, curModule, wires, addedModules, mods, loc){
-
+	
 	var module_data;
 	var module_name;
 	var module_def;
 	var input_terminals;
 	var output_terminals;
-	var curWires = getWires(wires, curModule);  
-	var terminalSpace = 1;
-	
+	var curWires = getSourceWires(wires, curModule);  
+	//var terminalSpace = 1;
+
 	//keep on adding the modules until reached the edge target 
-	while(curWires.length !== 0){
+	while(curWires.length !== 0 && addedModules.indexOf(curModule) === -1 && addedModules.length < (mods.length - 1)){ 
 		
-		//don't repeat modules --> add the edge input or middle modules
-		if(addedModules.indexOf(curModule) === -1){  
-			
-			module_data = mods[mods.length -1].innerModules[parseInt(curModule)];
-			module_data.x = mods[mods.length -1].x
-			module_data.y = mods[mods.length -1].y
+		module_data = mods[mods.length -1].innerModules[parseInt(curModule)];
+		module_data.x = mods[mods.length -1].x
+		module_data.y = mods[mods.length -1].y
 				
-			module_name = module_data.module;
-			module_def = module_data.module_def || module_defs[module_name] || {};
+		module_name = module_data.module;
+		module_def = module_data.module_def || module_defs[module_name] || {};
 				
-			input_terminals = module_data.inputs || module_def.inputs || []
-			output_terminals = module_data.outputs || module_def.outputs || [];
+		input_terminals = module_data.inputs || module_def.inputs || []
+		output_terminals = module_data.outputs || module_def.outputs || [];
 			
-			//---------------------------
+		//---------------------------
 		
-			//if module has already been added
-			if(addedModules.indexOf(String(curWires[loc].target).split(",")[0]) !== -1)
-				curY -= 30;
+		//if module has already been added
+		if(loc < curWires.length && addedModules.indexOf(String(curWires[loc].target).split(",")[0]) !== -1)
+			curY -= 30;
 								
-			var space = singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, loc)
-			addedModules.push(curModule);
-				
-			//recursively add the other connected modules
-			for(var i = 1; i < curWires.length; i++){
-				
-				loc++;
-				curY += 30;
-				curX = space + 40;
-				addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge,  String((curWires[loc].target)[0]), wires, addedModules, mods, loc);
-			}
+		var space = singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, loc)
+		addedModules.push(curModule);
 			
-			//if has more than one input or output
-			if(curWires.length > 1)
-				curY -= (curWires.length - 1) * 30;
+		//recursively add the other connected modules
+		for(var i = 1; i < curWires.length; i++){
 			
-			//if has only one input and output
-			else
-				curX += space + 40; 
-				
-			curModule = String((curWires[0].target)[0]);
-			curWires = getWires(wires, curModule);                   
-			terminalSpace = Math.max(terminalSpace, Math.max(input_terminals.length, output_terminals.length));
-				
-			inputEdge = false;  
+			loc++;
+			curY += 30;
+			curX = curX + 40 + space;  
+			inputEdge = false;
 			outputEdge = false;
+			addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge,  String((curWires[loc].target)[0]), wires, addedModules, mods, loc);
+			addedModules.push(String(curWires[loc].target)[0]);
 		}
-	}
+			
+		//if has more than one input or output
+		if(curWires.length > 1)
+			curY -= (curWires.length - 1) * 30;
 		
+		//if has only one input and output
+		else
+			curX += space + 40; 
+				
+		curModule = String((curWires[0].target)[0]);
+		curWires = getSourceWires(wires, curModule);                   
+		//terminalSpace = Math.max(terminalSpace, Math.max(input_terminals.length, output_terminals.length));
+				
+		inputEdge = false;  
+		outputEdge = false;
+	}
+	
 	//don't repeat modules --> add the edge output terminal
 	if(addedModules.indexOf(curModule) === -1){
 		
@@ -910,19 +932,22 @@ function editor(data, autosize_modules) {
 		//-------
 		
 		singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge)
-		terminalSpace = Math.max(terminalSpace, Math.max(input_terminals.length, output_terminals.length));
-			
+		//terminalSpace = Math.max(terminalSpace, Math.max(input_terminals.length, output_terminals.length));	
 		addedModules.push(curModule);
 			
-		curY += terminalSpace * 30;
+		curY += 30;//curY += terminalSpace * 30;
 		curX = 0;
 	}
+	
+	//need to update for the next row
+	else
+		curY += 30;//curY += terminalSpace * 30; 
 	
 	return curY;
   }
   
   //returns the wire that the module is the source of
-  function getWires(wires, source){
+  function getSourceWires(wires, source){
 	
 	var sourceWires = [];
 	
@@ -937,6 +962,24 @@ function editor(data, autosize_modules) {
 	  }
 	  
 	  return sourceWires;
+  }
+  
+  //returns the wire that the module is the target of
+  function getTargetWires(wires, target){
+	
+	var targetWires = [];
+	
+	 //go through the wires
+	 for(var i = 0; i < wires.length; i++){
+
+		var curWire = wires[i];		
+		
+		//if found the wire
+		if(String(curWire.target).split(",")[0] === target)
+			targetWires.push(curWire);
+	  }
+	  
+	  return targetWires;
   }
   
   //returns whether the connector has a node
