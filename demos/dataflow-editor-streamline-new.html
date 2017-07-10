@@ -409,24 +409,9 @@ d3.select("#combine_mods").on("click", function() {
 	
 	var userDisplay = window.prompt("Combined module display:\n\nEnter (s) for Single Module\nEnter (t) for Module Template");
 	var modules = e.data()[0].modules;
-	var edgeModules = e.getEdgeModules();
-	var inputChoices = "";
-	var outputChoices = "";
-	
-	//create the input choices
-	for(var i = 0; i < edgeModules[0].length; i++)
-		inputChoices += edgeModules[0][i] + " : " + modules[edgeModules[0][i]].title + "\n";
-	
-	//create the output choices
-	for(var i = 0; i < edgeModules[1].length; i++)
-		outputChoices += edgeModules[1][i] + " : " +  modules[edgeModules[1][i]].title + "\n";
 
 	//if single module display
 	if(userDisplay === "s"){
-		
-		var inputTerminal = window.prompt("Choose the input terminal:\n" + inputChoices);
-		var outputTerminal = window.prompt("Choose the output terminal:\n" + outputChoices);
-		var moduleName = window.prompt("Enter the module's name:");
 		
 		var title = "Combined Single Module";
 		var module = "ncnr.refl.combined_single_module"; 
@@ -439,9 +424,6 @@ d3.select("#combine_mods").on("click", function() {
 	//if module template display
 	else if(userDisplay === "t"){
 	
-		var inputTerminal = window.prompt("Choose the input terminal:\n" + inputChoices);
-		var outputTerminal = window.prompt("Choose the output terminal:\n" + outputChoices);
-		
 		var title = "Combined Template Module";
 		var module = "ncnr.refl.combined_template_module"; 
 		

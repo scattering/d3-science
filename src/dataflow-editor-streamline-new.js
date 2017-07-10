@@ -548,6 +548,9 @@ function editor(data, autosize_modules) {
 	var outputEdge = true;
 	var curX = 0;
 	var curY = 0;
+	var inputTerminal = "";
+	var outputTerminal = "";
+	var moduleName = "";
 	
 	//create and append module HTML element
     group = d3.select(this).append("g")
@@ -560,35 +563,83 @@ function editor(data, autosize_modules) {
 	  
     title = group.append("g")
       .classed("title", true)
-	
-	inputs = group.selectAll(".inputs")
-      .data(input_terminals)  
-      .enter().append("g")
-      .classed("terminals", true)
-      .classed("inputs", true)
-      
-    outputs = group.selectAll(".outputs")
-      .data(output_terminals) 
-      .enter().append("g")
-      .classed("terminals", true)
-      .classed("outputs", true)
 	  
-	//if a single module
-	if(module_name !== "ncnr.refl.combined_template_module" && module_name != "ncnr.refl.combined_single_module")
-		singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge)
-		
-	//if a combined single module
-	else if(module_name === "ncnr.refl.combined_single_module"){
-		
-		moduleType = "combined single";
-		combinedSingleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge)
-	}
+	//-------------------------------------------------------
 	
-	//if a combined template module
-	else{
+	//if a single module
+	if(module_name !== "ncnr.refl.combined_template_module" && module_name != "ncnr.refl.combined_single_module"){
 		
-		moduleType = "combined template";
-		combinedTemplateModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge);
+		inputs = group.selectAll(".inputs")
+		  .data(input_terminals)  
+		  .enter().append("g")
+		  .classed("terminals", true)
+		  .classed("inputs", true)
+		  
+		outputs = group.selectAll(".outputs")
+		  .data(output_terminals) 
+		  .enter().append("g")  
+		  .classed("terminals", true)
+		  .classed("outputs", true)
+		  
+		singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName)
+	}
+	//if a combined module	
+	else{	
+	
+		var mods = svg.datum().modules;
+		var edgeModules = getEdgeModules();
+		var inputChoices = "";
+		var outputChoices = "";
+		
+		//create the input choices
+		for(var i = 0; i < edgeModules[0].length; i++)
+			inputChoices += edgeModules[0][i] + " : " + mods[edgeModules[0][i]].title + "\n";
+		
+		//create the output choices
+		for(var i = 0; i < edgeModules[1].length; i++)
+			outputChoices += edgeModules[1][i] + " : " +  mods[edgeModules[1][i]].title + "\n";
+		
+		inputTerminal = parseInt(window.prompt("Choose the input terminal:\n" + inputChoices));
+		outputTerminal = parseInt(window.prompt("Choose the output terminal:\n" + outputChoices));
+		
+		var curModule_data = mods[parseInt(inputTerminal)];
+		var curModule_name = module_data.module;
+		var curModule_def = module_data.module_def || module_defs[module_name] || {};
+		var curInput_terminals = module_data.inputs || module_def.inputs || []
+		
+		inputs = group.selectAll(".inputs")
+		  .data(curInput_terminals)  
+		  .enter().append("g")
+		  .classed("terminals", true)
+		  .classed("inputs", true)
+		  
+		curModule_data = mods[parseInt(outputTerminal)];
+		curModule_name = module_data.module;
+		curModule_def = module_data.module_def || module_defs[module_name] || {};
+		var curOutput_terminals = module_data.outputs || module_def.outputs || [];
+		
+		outputs = group.selectAll(".outputs")
+		  .data(curOutput_terminals) 
+		  .enter().append("g")  //!!!!!
+		  .classed("terminals", true)
+		  .classed("outputs", true)
+	
+		//---------------------------------
+			
+		//if a combined single module
+		if(module_name === "ncnr.refl.combined_single_module"){
+
+			moduleName = window.prompt("Enter the module's name:");
+			moduleType = "combined single";
+			combinedSingleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName)
+		}
+		
+		//if a combined template module
+		else{
+			
+			moduleType = "combined template";
+			combinedTemplateModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName)
+		}
 	}
 	
     group.call(drag);
@@ -596,18 +647,32 @@ function editor(data, autosize_modules) {
   }
   
    //represents a standard module; returns the module's width
-  function singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge){
+  function singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName){
 	
 	var width = 75 + (padding * 2);
     var height = 20 + (padding * 2);
+    
+	//combined single module title text  
+	if(moduleType === "combined single"){
+
+		titletext = title.append("text")
+		  .classed("title text", true)
+		  .text(moduleName)  
+		  .attr("x", padding + curX)
+		  .attr("y", padding + curY)
+		  .attr("dy", "1em")
+	}
 	
-    //add title text first so other elements are drawn over it
-    titletext = title.append("text")
-      .classed("title text", true)
-      .text(module_data.title || module_data.module)   
-      .attr("x", padding + curX)
-      .attr("y", padding + curY)
-      .attr("dy", "1em")
+	//add title text first so other elements are drawn over it
+	else{
+		
+		titletext = title.append("text")
+		  .classed("title text", true)
+		  .text(module_data.title || module_data.module)  
+		  .attr("x", padding + curX)
+		  .attr("y", padding + curY)
+		  .attr("dy", "1em")
+	}
 	  
 	//if has auto-sized modules
     if (autosize_modules){
@@ -774,7 +839,7 @@ function editor(data, autosize_modules) {
   }
   
   //represents a single combined module
-  function combinedSingleModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge){
+  function combinedSingleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName){
 	  
 	  var mods = svg.datum().modules;
 	  var wires = svg.datum().wires;
@@ -794,15 +859,11 @@ function editor(data, autosize_modules) {
 			mods[mods.length -1].innerModules.push(curTarget);
 	  }
 	  
-	  //user title for the module
-	  
-	  //input terminal
-	  
-	  //output terminal
+	 singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName);
   }
 	  
   //represents modules combined into one template
-  function combinedTemplateModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge){
+  function combinedTemplateModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName){
 	
 	var mods = svg.datum().modules;
 	var wires = svg.datum().wires;
@@ -973,7 +1034,7 @@ function editor(data, autosize_modules) {
 			
 		//---------------------------
 		
-		var space = singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, loc)
+		var space = singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName)
 		addedModules.push(curModule);
 			
 		//recursively add the other connected modules
@@ -1021,7 +1082,7 @@ function editor(data, autosize_modules) {
 		output_terminals = module_data.outputs || module_def.outputs || [];
 			
 		//-------
-		singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge)
+		singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName)
 		addedModules.push(curModule);
 		curX = 0;
 	}
