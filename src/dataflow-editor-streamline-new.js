@@ -821,8 +821,6 @@ function editor(data, autosize_modules) {
 		}
 	}
 	
-	//TO-DO: FIX THE Y COORDINATE
-	
 	inputEdge = true;
 	outputEdge = false;
 		
