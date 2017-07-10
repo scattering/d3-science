@@ -413,7 +413,7 @@ d3.select("#combine_mods").on("click", function() {
 		var modules = e.data()[0].modules;
 		
 		//remove all of the modules except for the combined module
-		for(var i = 0; i < modules.length - 1; i++){ 		
+		for(var i = 0; i < modules.length - 1; i++){		
 			
 			var module_id = i;
 			
@@ -425,19 +425,6 @@ d3.select("#combine_mods").on("click", function() {
 			e.update();
 		}
 	}
-});
-
-//if user wants to expand the combined module
-d3.select("#expand_combined_module").on("click", function() {
-
-	e.expandCombinedModule();
-		
-	//remove the combined module
-	e.svg().datum().modules = e.svg().datum().modules.filter(function(d) { 
-		return d.module_id !== d.module_id
-	});
-			
-	e.update();
 });
 
 //loads the data
@@ -470,7 +457,6 @@ d3.select("#upload_template").on("change", loadData);
     <input id="upload_template" type="file" multiple="false" name="upload_template" />
     <button id="show_value">Show data</button>
 	<button id="combine_mods">Combine Modules</button>
-	<button id="expand_combined_module">Expand Combined Module</button>
 </div>
 <div id="editor_div">
 </div>
