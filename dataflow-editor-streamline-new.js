@@ -827,35 +827,51 @@ function editor(data, autosize_modules) {
 	outputEdge = false;
 		
 	curY = addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, edgeSources[0], wires, addedModules, mods, loc);
-		
+	var verticalSpace = 0;
+	
 	//go through the sources
 	for(var i = 1; i < edgeSources.length; i++){
-
+		
 		//look at previous row to check to see if need to move up the y coordinate
 		for(var j = numModulesAdded; j < addedModules.length; j++){ 
 				
 			var curModule = addedModules[j];
 			var curWires = getTargetWires(wires, curModule);
-				
+			
+			verticalSpace = Math.max(verticalSpace, getVerticalSpace(curModule, mods, module_defs, curWires, addedModules));
+			
 			//if the added module has more connected inputs
 			if(curWires.length > 1){
 				
-				console.log("numUsedInputs: " + getNumUsedInputs(curModule, mods, module_defs, curWires, addedModules));
-				curY += getNumUsedInputs(curModule, mods, module_defs, curWires, addedModules) * 30; 
+				verticalSpace = getNumUsedInputs(curModule, mods, module_defs, curWires, addedModules); 
 				break;
 			}
 		}
 			
+		curY += (verticalSpace -1) * 30;	
+		verticalSpace = 0;
 		numModulesAdded = addedModules.length;	
 		inputEdge = true;
 		outputEdge = false;
-		
+	
 		curY = addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, edgeSources[i], wires, addedModules, mods, loc);
 	}
   }
   
+  //returns the vertical space needed for the module
+  function getVerticalSpace(curModule, mods, module_defs, curWires, addedModules){ 
+  
+	var module_data = mods[parseInt(curModule)];
+	var module_name = module_data.module;
+	var module_def = module_data.module_def || module_defs[module_name] || {};
+	var input_terminals = module_data.inputs || module_def.inputs || [],
+		output_terminals = module_data.outputs || module_def.outputs || [];
+	
+	return Math.max(input_terminals.length, output_terminals.length);
+  }
+  
   //returns the number of used inputs that have been added for the module
-  function getNumUsedInputs(curModule, mods, module_defs, curWires, addedModules){ //to-do
+  function getNumUsedInputs(curModule, mods, module_defs, curWires, addedModules){ 
 	  
 	var module_data = mods[parseInt(curModule)];
 	var module_name = module_data.module;
@@ -906,10 +922,6 @@ function editor(data, autosize_modules) {
 			
 		//---------------------------
 		
-		//if module has already been added
-		if(loc < curWires.length && addedModules.indexOf(String(curWires[loc].target).split(",")[0]) !== -1)
-			curY -= 30;
-								
 		var space = singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, loc)
 		addedModules.push(curModule);
 			
@@ -958,7 +970,6 @@ function editor(data, autosize_modules) {
 		output_terminals = module_data.outputs || module_def.outputs || [];
 			
 		//-------
-		
 		singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge)
 		addedModules.push(curModule);
 		curX = 0;
