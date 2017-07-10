@@ -117,6 +117,7 @@ dataflow.editor = function(data) {
   }
   
   function get_terminal_pos(term_id) {
+
     var module = container.select('.module[index="' + term_id.split(":")[0] + '"]');
     var terminal = container.select('.module[index="' + term_id.split(":")[0] + '"]')
         .select('.terminal[terminal_id="' + term_id.split(":")[1] + '"]');
@@ -363,7 +364,7 @@ dataflow.module = function(module_data) {
         .append("text")
           .classed("input label", true)
           .style("dominant-baseline", "text-before-edge")
-          .attr("x", padding)
+          .attr("x", padding) 
           .attr("y", padding)
           .style("padding", padding)
           .text(function(d) { return d; });
