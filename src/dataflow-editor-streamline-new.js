@@ -376,6 +376,12 @@ function editor(data, autosize_modules) {
     return editor;
   }
   
+  //returns the edge modules (edgeSources, edgeTargets)
+  editor.getEdgeModules = function(){
+	  
+	 return getEdgeModules(); 
+  }
+  
   editor.update = update;
   editor.draw_wires = draw_wires;
   
@@ -568,14 +574,21 @@ function editor(data, autosize_modules) {
       .classed("outputs", true)
 	  
 	//if a single module
-	if(module_name !== "ncnr.refl.combined_module")
+	if(module_name !== "ncnr.refl.combined_template_module" && module_name != "ncnr.refl.combined_single_module")
 		singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge)
 		
-	//if a combined module
+	//if a combined single module
+	else if(module_name === "ncnr.refl.combined_single_module"){
+		
+		moduleType = "combined single";
+		combinedSingleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge)
+	}
+	
+	//if a combined template module
 	else{
 		
-		moduleType = "combined";
-		combinedModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge);
+		moduleType = "combined template";
+		combinedTemplateModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge);
 	}
 	
     group.call(drag);
@@ -614,8 +627,8 @@ function editor(data, autosize_modules) {
         .style("padding", padding)
         .text(function(d) { return d.label; });
 	
-	//if a single module
-	if(moduleType === "single"){
+	//if a single or combined single module
+	if(moduleType !== "combined template"){
 		
 		inputs.append("rect")
 			.classed("terminal input", true)
@@ -759,20 +772,92 @@ function editor(data, autosize_modules) {
 	  
 	return width;  
   }
+  
+  //represents a single combined module
+  function combinedSingleModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge){
+	  
+	  var mods = svg.datum().modules;
+	  var wires = svg.datum().wires;
+	  
+	  //add the inner modules 
+	  for(var i = 0; i < wires.length; i++){
+	
+		var curSource = parseInt(String(wires[i].source).split(",")[0]); 
+		var curTarget = parseInt(String(wires[i].source).split(",")[0]); 
+		
+		//if source has not been added yet
+		if(mods[mods.length - 1].innerModules.indexOf(curSource) === -1)
+			mods[mods.length -1].innerModules.push(curSource);
+		
+		//if target has not been added yet
+		if(mods[mods.length - 1].innerModules.indexOf(curTarget) === -1)
+			mods[mods.length -1].innerModules.push(curTarget);
+	  }
+	  
+	  //user title for the module
+	  
+	  //input terminal
+	  
+	  //output terminal
+  }
 	  
   //represents modules combined into one template
-  function combinedModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge){
+  function combinedTemplateModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge){
 	
 	var mods = svg.datum().modules;
 	var wires = svg.datum().wires;
-	var edgeSourceWires;
-	var edgeSources = [];
-    var edgeTargets = [];
 	var curX = 0;
 	var curY = 0;
 	var addedModules = []
 	var loc = 0;
 	var numModulesAdded = 0;
+	
+	var edgeModules = getEdgeModules(mods, wires);
+	var edgeSources = edgeModules[0];
+	var edgeTargets = edgeModules[1];
+	
+	inputEdge = true;
+	outputEdge = false;
+		
+	curY = addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, edgeSources[0], wires, addedModules, mods, loc);
+	var verticalSpace = 0;
+	
+	//go through the sources
+	for(var i = 1; i < edgeSources.length; i++){
+		
+		//look at previous row to check to see if need to move up the y coordinate
+		for(var j = numModulesAdded; j < addedModules.length; j++){ 
+				
+			var curModule = addedModules[j];
+			var curWires = getTargetWires(wires, curModule);
+			
+			verticalSpace = Math.max(verticalSpace, getVerticalSpace(curModule, mods, module_defs, curWires, addedModules));
+			
+			//if the added module has more connected inputs
+			if(curWires.length > 1){
+				
+				verticalSpace = getNumUsedInputs(curModule, mods, module_defs, curWires, addedModules); 
+				break;
+			}
+		}
+			
+		curY += (verticalSpace -1) * 30;	
+		verticalSpace = 0;
+		numModulesAdded = addedModules.length;	
+		inputEdge = true;
+		outputEdge = false;
+	
+		curY = addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, edgeSources[i], wires, addedModules, mods, loc);
+	}
+  }
+  
+  //returns the edge modules (edgeSources, edgeTargets)
+  function getEdgeModules(){
+	
+	var mods = svg.datum().modules;
+	var wires = svg.datum().wires;  
+	var edgeSources = [];
+    var edgeTargets = [];
 	
 	//go through the wires
     for (var i=0; i < wires.length; i++) {
@@ -820,40 +905,8 @@ function editor(data, autosize_modules) {
 			}
 		}
 	}
-	
-	inputEdge = true;
-	outputEdge = false;
-		
-	curY = addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, edgeSources[0], wires, addedModules, mods, loc);
-	var verticalSpace = 0;
-	
-	//go through the sources
-	for(var i = 1; i < edgeSources.length; i++){
-		
-		//look at previous row to check to see if need to move up the y coordinate
-		for(var j = numModulesAdded; j < addedModules.length; j++){ 
-				
-			var curModule = addedModules[j];
-			var curWires = getTargetWires(wires, curModule);
-			
-			verticalSpace = Math.max(verticalSpace, getVerticalSpace(curModule, mods, module_defs, curWires, addedModules));
-			
-			//if the added module has more connected inputs
-			if(curWires.length > 1){
-				
-				verticalSpace = getNumUsedInputs(curModule, mods, module_defs, curWires, addedModules); 
-				break;
-			}
-		}
-			
-		curY += (verticalSpace -1) * 30;	
-		verticalSpace = 0;
-		numModulesAdded = addedModules.length;	
-		inputEdge = true;
-		outputEdge = false;
-	
-		curY = addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, edgeSources[i], wires, addedModules, mods, loc);
-	}
+
+	return [edgeSources, edgeTargets];
   }
   
   //returns the vertical space needed for the module

@@ -400,30 +400,69 @@ d3.select("#show_example").on("click", function() {
 //if user wants to combine modules
 d3.select("#combine_mods").on("click", function() {
 	
-	//if there is a template to combine
-	if(e.svg().datum().wires.length > 0){
+	//if no template to combine
+	if(e.svg().datum().wires.length === 0){
 	
-		var title = "Combined Module";
-		var module = "ncnr.refl.combined_module"; 
+		window.alert("There is no module template to combine.");
+		return;
+	}
+	
+	var userDisplay = window.prompt("Combined module display:\n\nEnter (s) for Single Module\nEnter (t) for Module Template");
+	var modules = e.data()[0].modules;
+	var edgeModules = e.getEdgeModules();
+	var inputChoices = "";
+	var outputChoices = "";
+	
+	//create the input choices
+	for(var i = 0; i < edgeModules[0].length; i++)
+		inputChoices += edgeModules[0][i] + " : " + modules[edgeModules[0][i]].title + "\n";
+	
+	//create the output choices
+	for(var i = 0; i < edgeModules[1].length; i++)
+		outputChoices += edgeModules[1][i] + " : " +  modules[edgeModules[1][i]].title + "\n";
+
+	//if single module display
+	if(userDisplay === "s"){
+		
+		var inputTerminal = window.prompt("Choose the input terminal:\n" + inputChoices);
+		var outputTerminal = window.prompt("Choose the output terminal:\n" + outputChoices);
+		var moduleName = window.prompt("Enter the module's name:");
+		
+		var title = "Combined Single Module";
+		var module = "ncnr.refl.combined_single_module"; 
+		
+		e.data()[0].modules.push({module: module, title: title}); 
+		e.update();
+		this.selectedIndex=0;
+	}
+	
+	//if module template display
+	else if(userDisplay === "t"){
+	
+		var inputTerminal = window.prompt("Choose the input terminal:\n" + inputChoices);
+		var outputTerminal = window.prompt("Choose the output terminal:\n" + outputChoices);
+		
+		var title = "Combined Template Module";
+		var module = "ncnr.refl.combined_template_module"; 
 		
 		e.data()[0].modules.push({module: module, title: title});
 		e.update();
 		this.selectedIndex=0;
+	}
+	
+	//----------------------------------
 		
-		var modules = e.data()[0].modules;
-		
-		//remove all of the modules except for the combined module
-		for(var i = 0; i < modules.length - 1; i++){		
+	//remove all of the modules except for the combined module
+	for(var i = 0; i < modules.length - 1; i++){		
 			
-			var module_id = i;
+		var module_id = i;
 			
-			//remove the module
-			e.svg().datum().modules = e.svg().datum().modules.filter(function(d) { 
-				return d.module_id != module_id
-			});
+		//remove the module
+		e.svg().datum().modules = e.svg().datum().modules.filter(function(d) { 
+			return d.module_id != module_id
+		});
 			
-			e.update();
-		}
+		e.update();
 	}
 });
 
