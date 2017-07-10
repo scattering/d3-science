@@ -821,22 +821,33 @@ function editor(data, autosize_modules) {
 		}
 	}
 	
+<<<<<<< HEAD
 	//TO-DO: FIX THE Y COORDINATE
 	
+=======
+>>>>>>> 6c285f3135e520bcfb078bffd395e99e15a30bde
 	inputEdge = true;
 	outputEdge = false;
 		
 	curY = addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, edgeSources[0], wires, addedModules, mods, loc);
+<<<<<<< HEAD
 	var verticalSpace = 0;
 	
 	//go through the sources
 	for(var i = 1; i < edgeSources.length; i++){
 		
+=======
+		
+	//go through the sources
+	for(var i = 1; i < edgeSources.length; i++){
+
+>>>>>>> 6c285f3135e520bcfb078bffd395e99e15a30bde
 		//look at previous row to check to see if need to move up the y coordinate
 		for(var j = numModulesAdded; j < addedModules.length; j++){ 
 				
 			var curModule = addedModules[j];
 			var curWires = getTargetWires(wires, curModule);
+<<<<<<< HEAD
 			
 			verticalSpace = Math.max(verticalSpace, getVerticalSpace(curModule, mods, module_defs, curWires, addedModules));
 			
@@ -844,10 +855,18 @@ function editor(data, autosize_modules) {
 			if(curWires.length > 1){
 				
 				verticalSpace = getNumUsedInputs(curModule, mods, module_defs, curWires, addedModules); 
+=======
+				
+			//if the added module has more connected inputs
+			if(curWires.length > 1){
+				
+				curY += 30; //to-do: add by number of used inputs
+>>>>>>> 6c285f3135e520bcfb078bffd395e99e15a30bde
 				break;
 			}
 		}
 			
+<<<<<<< HEAD
 		curY += (verticalSpace -1) * 30;	
 		verticalSpace = 0;
 		numModulesAdded = addedModules.length;	
@@ -895,6 +914,14 @@ function editor(data, autosize_modules) {
 	}
 	
 	return numUsedInputs;
+=======
+		numModulesAdded = addedModules.length;	
+		inputEdge = true;
+		outputEdge = false;
+		
+		curY = addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, edgeSources[i], wires, addedModules, mods, loc);
+	}
+>>>>>>> 6c285f3135e520bcfb078bffd395e99e15a30bde
   }
  
   //adds the modules (recursive if a module has multiple inputs or outputs wired)
@@ -906,6 +933,10 @@ function editor(data, autosize_modules) {
 	var input_terminals;
 	var output_terminals;
 	var curWires = getSourceWires(wires, curModule);  
+<<<<<<< HEAD
+=======
+	//var terminalSpace = 1;
+>>>>>>> 6c285f3135e520bcfb078bffd395e99e15a30bde
 
 	//keep on adding the modules until reached the edge target 
 	while(curWires.length !== 0 && addedModules.indexOf(curModule) === -1 && addedModules.length < (mods.length - 1)){ 
@@ -922,6 +953,13 @@ function editor(data, autosize_modules) {
 			
 		//---------------------------
 		
+<<<<<<< HEAD
+=======
+		//if module has already been added
+		if(loc < curWires.length && addedModules.indexOf(String(curWires[loc].target).split(",")[0]) !== -1)
+			curY -= 30;
+								
+>>>>>>> 6c285f3135e520bcfb078bffd395e99e15a30bde
 		var space = singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, loc)
 		addedModules.push(curModule);
 			
@@ -947,6 +985,10 @@ function editor(data, autosize_modules) {
 				
 		curModule = String((curWires[0].target)[0]);
 		curWires = getSourceWires(wires, curModule);                   
+<<<<<<< HEAD
+=======
+		//terminalSpace = Math.max(terminalSpace, Math.max(input_terminals.length, output_terminals.length));
+>>>>>>> 6c285f3135e520bcfb078bffd395e99e15a30bde
 				
 		inputEdge = false;  
 		outputEdge = false;
@@ -970,12 +1012,27 @@ function editor(data, autosize_modules) {
 		output_terminals = module_data.outputs || module_def.outputs || [];
 			
 		//-------
+<<<<<<< HEAD
 		singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge)
 		addedModules.push(curModule);
 		curX = 0;
 	}
 	
 	curY += 30;
+=======
+		
+		singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge)
+		//terminalSpace = Math.max(terminalSpace, Math.max(input_terminals.length, output_terminals.length));	
+		addedModules.push(curModule);
+			
+		curY += 30;//curY += terminalSpace * 30;
+		curX = 0;
+	}
+	
+	//need to update for the next row
+	else
+		curY += 30;//curY += terminalSpace * 30; 
+>>>>>>> 6c285f3135e520bcfb078bffd395e99e15a30bde
 	
 	return curY;
   }
