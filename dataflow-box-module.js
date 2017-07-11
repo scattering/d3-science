@@ -52,8 +52,9 @@ function module(argopts) {
     width: 'auto',
     height: 'auto',
 	innerModules: [],
-	joinedInput: [],
-	joinedOutput: [],
+	innerInputs: [],
+	innerOutputs: [],
+	innerWires[];
   }
   
   jQuery.extend(true, options, argopts);

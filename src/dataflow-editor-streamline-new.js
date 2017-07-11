@@ -498,8 +498,9 @@ function editor(data, autosize_modules) {
     if (!('x' in module_data)) module_data.x = 100; //if does not have a x-coordinate
     if (!('y' in module_data)) module_data.y = 100; //if does not have a y-coordinate 
 	module_data.innerModules = [];
-	module_data.joinedInput = [];
-	module_data.joinedOutput = [];
+	module_data.innerWires = [];
+	module_data.innerInputs = [];
+	module_data.innerOutputs = [];
 	
     //look up terminals from module definition if not in module_data:
     //var terminals = module_data.terminals || dataflow.module_defs[module_data.module].terminals;
@@ -858,8 +859,9 @@ function editor(data, autosize_modules) {
 		if(edgeTargets.indexOf(curTarget) === -1)
 			edgeTargets.push(curTarget);
 		
-		mods[curSource].joinedOutput.push(curTarget); 
-		mods[curTarget].joinedInput.push(curSource);  
+		mods[mods.length -1].innerWires.push(w);
+		mods[mods.length -1].innerInputs.push(w.source);
+		mods[mods.length -1].innerOutputs.push(w.target);
     }
 	
 	//add the single modules into the template
