@@ -54,7 +54,8 @@ function module(argopts) {
 	innerModules: [],
 	innerInputs: [],
 	innerOutputs: [],
-	innerWires[];
+	innerWires[],
+	innerParameters = [];
   }
  
   jQuery.extend(true, options, argopts);

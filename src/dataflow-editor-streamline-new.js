@@ -389,7 +389,7 @@ function editor(data, autosize_modules) {
       
   //starts up the wire 		
   function wirestart() {
-	  
+	
     var module_el = this.parentNode.parentNode;
 	
 	//if the module is not wireable
@@ -431,7 +431,7 @@ function editor(data, autosize_modules) {
     
   //stops the wire
   function wirestop() {
-		
+	
     d3.select(this).classed("highlight", false);
     var active_data = new_wiredata; // d3.select(active_wire).datum();
 	 
@@ -582,6 +582,7 @@ function editor(data, autosize_modules) {
 		module_data.innerWires = [];
 		module_data.innerInputs = [];
 		module_data.innerOutputs = [];
+		module_data.innerParameters = [];
 		
 		var mods = svg.datum().modules;
 		var edgeModules = getEdgeModules();
@@ -596,8 +597,45 @@ function editor(data, autosize_modules) {
 		for(var i = 0; i < edgeModules[1].length; i++)
 			outputChoices += edgeModules[1][i] + " : " +  mods[edgeModules[1][i]].title + "\n";
 		
-		inputModule = parseInt(window.prompt("Choose the input terminal:\n" + inputChoices));
-		outputModule = parseInt(window.prompt("Choose the output terminal:\n" + outputChoices));
+		//--------------------------------------------
+		
+		var terminalIndexes = [];
+		terminalIndexes.push(window.prompt("Choose the input terminal:\n" + inputChoices)); 
+		terminalIndexes.push(window.prompt("Choose the output terminal:\n" + outputChoices));  
+		
+		var inputInfo = {
+			name: "combined_input",
+			target: []
+		}	
+	  
+		var outputInfo = {
+			name: "combined_input",
+			target: []
+		}
+		
+		inputInfo.target.push(terminalIndexes[0]);
+		inputInfo.target.push("input");
+		outputInfo.target.push(terminalIndexes[1]);
+		outputInfo.target.push("output");
+		
+		module_data.innerInputs.push(inputInfo);
+		module_data.innerOutputs.push(outputInfo);
+		
+		//add the parameters
+		for(var i = 0; i < terminalIndexes.length; i++){
+			
+			var curParameter = {
+				name: "exposed_parameter" + (i+ 1),
+				target: []
+			}
+			
+			curParameter.target.push(terminalIndexes[i]);
+			curParameter.target.push("parameter1");
+			
+			module_data.innerParameters.push(curParameter);
+		}
+		
+		//--------------------------------
 		
 		var curModule_data = mods[parseInt(inputModule)];
 		var curModule_name = module_data.module;
@@ -861,8 +899,6 @@ function editor(data, autosize_modules) {
 			edgeTargets.push(curTarget);
 		
 		mods[mods.length -1].innerWires.push(w);
-		mods[mods.length -1].innerInputs.push(w.source);
-		mods[mods.length -1].innerOutputs.push(w.target);
     }
 	
 	//add the single modules into the template
