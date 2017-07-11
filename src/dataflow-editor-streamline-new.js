@@ -613,10 +613,8 @@ function editor(data, autosize_modules) {
 			target: []
 		}
 		
-		inputInfo.target.push(terminalIndexes[0]);
-		inputInfo.target.push("input");
-		outputInfo.target.push(terminalIndexes[1]);
-		outputInfo.target.push("output");
+		inputInfo.target.push(getWireModInfo(terminalIndexes[0]));
+		outputInfo.target.push(getWireModInfo(terminalIndexes[1]));
 		
 		module_data.innerInputs.push(inputInfo);
 		module_data.innerOutputs.push(outputInfo);
@@ -681,6 +679,30 @@ function editor(data, autosize_modules) {
     return group.node(); 
   }
   
+  //returns the module's information from the wires
+  function getWireModInfo(index){
+	  
+	var wires = svg.datum().wires;  
+	
+	//go through the wires
+	for(var i = 0; i < wires.length; i++){
+		
+		var w = wires[i];
+		
+		var curSource = String(w.source).split(",")[0];
+		var curTarget = String(w.target).split(",")[0];
+		
+		//if source is the module
+		if(index === curSource)
+			return w.source;
+		
+		//if target is the module
+		else if(index === curTarget)
+			return w.target
+	}
+	
+	return "";
+  }
   
    //represents a standard module; returns the module's width
   function singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName){
