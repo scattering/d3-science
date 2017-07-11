@@ -497,10 +497,6 @@ function editor(data, autosize_modules) {
 	var group; // this will be the module group
     if (!('x' in module_data)) module_data.x = 100; //if does not have a x-coordinate
     if (!('y' in module_data)) module_data.y = 100; //if does not have a y-coordinate 
-	module_data.innerModules = [];
-	module_data.innerWires = [];
-	module_data.innerInputs = [];
-	module_data.innerOutputs = [];
 	
     //look up terminals from module definition if not in module_data:
     //var terminals = module_data.terminals || dataflow.module_defs[module_data.module].terminals;
@@ -582,6 +578,11 @@ function editor(data, autosize_modules) {
 	//if a combined module	
 	else{	
 	
+		module_data.innerModules = [];
+		module_data.innerWires = [];
+		module_data.innerInputs = [];
+		module_data.innerOutputs = [];
+		
 		var mods = svg.datum().modules;
 		var edgeModules = getEdgeModules();
 		var inputChoices = "";

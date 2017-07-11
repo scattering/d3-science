@@ -56,7 +56,7 @@ function module(argopts) {
 	innerOutputs: [],
 	innerWires[];
   }
-  
+ 
   jQuery.extend(true, options, argopts);
   
   drag = d3.behavior.drag()
