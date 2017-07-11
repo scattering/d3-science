@@ -401,11 +401,8 @@ d3.select("#show_example").on("click", function() {
 d3.select("#combine_mods").on("click", function() {
 	
 	//if no template to combine
-	if(e.svg().datum().wires.length === 0){
-	
-		window.alert("There is no module template to combine.");
+	if(e.svg().datum().wires.length === 0)
 		return;
-	}
 	
 	var userDisplay = window.prompt("Combined module display:\n\nEnter (s) for Single Module\nEnter (t) for Module Template");
 	var modules = e.data()[0].modules;

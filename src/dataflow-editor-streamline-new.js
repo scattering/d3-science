@@ -376,12 +376,6 @@ function editor(data, autosize_modules) {
     return editor;
   }
   
-  //returns the edge modules (edgeSources, edgeTargets)
-  editor.getEdgeModules = function(){
-	  
-	 return getEdgeModules(); 
-  }
-  
   editor.update = update;
   editor.draw_wires = draw_wires;
   
@@ -523,7 +517,7 @@ function editor(data, autosize_modules) {
     var drag = d3.behavior.drag()
       .on("drag", dragmove)
       .origin(function(a) { return {x: module_data.x, y: module_data.y} });
-      
+    
 	//drags and moves the module  
     function dragmove() {
 		
@@ -548,8 +542,8 @@ function editor(data, autosize_modules) {
 	var outputEdge = true;
 	var curX = 0;
 	var curY = 0;
-	var inputTerminal = "";
-	var outputTerminal = "";
+	var inputModule = "";
+	var outputModule = "";
 	var moduleName = "";
 	
 	//create and append module HTML element
@@ -581,8 +575,9 @@ function editor(data, autosize_modules) {
 		  .classed("terminals", true)
 		  .classed("outputs", true)
 		  
-		singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName)
+		singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName)
 	}
+	
 	//if a combined module	
 	else{	
 	
@@ -599,10 +594,10 @@ function editor(data, autosize_modules) {
 		for(var i = 0; i < edgeModules[1].length; i++)
 			outputChoices += edgeModules[1][i] + " : " +  mods[edgeModules[1][i]].title + "\n";
 		
-		inputTerminal = parseInt(window.prompt("Choose the input terminal:\n" + inputChoices));
-		outputTerminal = parseInt(window.prompt("Choose the output terminal:\n" + outputChoices));
+		inputModule = parseInt(window.prompt("Choose the input terminal:\n" + inputChoices));
+		outputModule = parseInt(window.prompt("Choose the output terminal:\n" + outputChoices));
 		
-		var curModule_data = mods[parseInt(inputTerminal)];
+		var curModule_data = mods[parseInt(inputModule)];
 		var curModule_name = module_data.module;
 		var curModule_def = module_data.module_def || module_defs[module_name] || {};
 		var curInput_terminals = module_data.inputs || module_def.inputs || []
@@ -613,14 +608,14 @@ function editor(data, autosize_modules) {
 		  .classed("terminals", true)
 		  .classed("inputs", true)
 		  
-		curModule_data = mods[parseInt(outputTerminal)];
+		curModule_data = mods[parseInt(outputModule)];
 		curModule_name = module_data.module;
 		curModule_def = module_data.module_def || module_defs[module_name] || {};
 		var curOutput_terminals = module_data.outputs || module_def.outputs || [];
 		
 		outputs = group.selectAll(".outputs")
 		  .data(curOutput_terminals) 
-		  .enter().append("g")  //!!!!!
+		  .enter().append("g")  
 		  .classed("terminals", true)
 		  .classed("outputs", true)
 	
@@ -631,14 +626,14 @@ function editor(data, autosize_modules) {
 
 			moduleName = window.prompt("Enter the module's name:");
 			moduleType = "combined single";
-			combinedSingleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName)
+			singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName);
 		}
 		
 		//if a combined template module
 		else{
 			
 			moduleType = "combined template";
-			combinedTemplateModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName)
+			combinedTemplateModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName, edgeModules)
 		}
 	}
 	
@@ -646,8 +641,9 @@ function editor(data, autosize_modules) {
     return group.node(); 
   }
   
+  
    //represents a standard module; returns the module's width
-  function singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName){
+  function singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName){
 	
 	var width = 75 + (padding * 2);
     var height = 20 + (padding * 2);
@@ -838,80 +834,6 @@ function editor(data, autosize_modules) {
 	return width;  
   }
   
-  //represents a single combined module
-  function combinedSingleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName){
-	  
-	  var mods = svg.datum().modules;
-	  var wires = svg.datum().wires;
-	  
-	  //add the inner modules 
-	  for(var i = 0; i < wires.length; i++){
-	
-		var curSource = parseInt(String(wires[i].source).split(",")[0]); 
-		var curTarget = parseInt(String(wires[i].source).split(",")[0]); 
-		
-		//if source has not been added yet
-		if(mods[mods.length - 1].innerModules.indexOf(curSource) === -1)
-			mods[mods.length -1].innerModules.push(curSource);
-		
-		//if target has not been added yet
-		if(mods[mods.length - 1].innerModules.indexOf(curTarget) === -1)
-			mods[mods.length -1].innerModules.push(curTarget);
-	  }
-	  
-	 singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName);
-  }
-	  
-  //represents modules combined into one template
-  function combinedTemplateModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName){
-	
-	var mods = svg.datum().modules;
-	var wires = svg.datum().wires;
-	var curX = 0;
-	var curY = 0;
-	var addedModules = []
-	var loc = 0;
-	var numModulesAdded = 0;
-	
-	var edgeModules = getEdgeModules(mods, wires);
-	var edgeSources = edgeModules[0];
-	var edgeTargets = edgeModules[1];
-	
-	inputEdge = true;
-	outputEdge = false;
-		
-	curY = addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, edgeSources[0], wires, addedModules, mods, loc);
-	var verticalSpace = 0;
-	
-	//go through the sources
-	for(var i = 1; i < edgeSources.length; i++){
-		
-		//look at previous row to check to see if need to move up the y coordinate
-		for(var j = numModulesAdded; j < addedModules.length; j++){ 
-				
-			var curModule = addedModules[j];
-			var curWires = getTargetWires(wires, curModule);
-			
-			verticalSpace = Math.max(verticalSpace, getVerticalSpace(curModule, mods, module_defs, curWires, addedModules));
-			
-			//if the added module has more connected inputs
-			if(curWires.length > 1){
-				
-				verticalSpace = getNumUsedInputs(curModule, mods, module_defs, curWires, addedModules); 
-				break;
-			}
-		}
-			
-		curY += (verticalSpace -1) * 30;	
-		verticalSpace = 0;
-		numModulesAdded = addedModules.length;	
-		inputEdge = true;
-		outputEdge = false;
-	
-		curY = addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, edgeSources[i], wires, addedModules, mods, loc);
-	}
-  }
-  
   //returns the edge modules (edgeSources, edgeTargets)
   function getEdgeModules(){
 	
@@ -937,7 +859,7 @@ function editor(data, autosize_modules) {
 			edgeTargets.push(curTarget);
 		
 		mods[curSource].joinedOutput.push(curTarget); 
-		mods[curTarget].joinedInput.push(curSource); 
+		mods[curTarget].joinedInput.push(curSource);  
     }
 	
 	//add the single modules into the template
@@ -968,6 +890,55 @@ function editor(data, autosize_modules) {
 	}
 
 	return [edgeSources, edgeTargets];
+  }
+  
+  //represents modules combined into one template
+  function combinedTemplateModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName, edgeModules){
+	
+	var mods = svg.datum().modules;
+	var wires = svg.datum().wires;
+	var curX = 0;
+	var curY = 0;
+	var addedModules = []
+	var loc = 0;
+	var numModulesAdded = 0;
+	
+	var edgeSources = edgeModules[0];
+	var edgeTargets = edgeModules[1];
+	
+	inputEdge = true;
+	outputEdge = false;
+		
+	curY = addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, edgeSources[0], wires, addedModules, mods, loc, inputModule, outputModule, moduleName);
+	var verticalSpace = 0;
+	
+	//go through the sources
+	for(var i = 1; i < edgeSources.length; i++){
+		
+		//look at previous row to check to see if need to move up the y coordinate
+		for(var j = numModulesAdded; j < addedModules.length; j++){ 
+				
+			var curModule = addedModules[j];
+			var curWires = getTargetWires(wires, curModule);
+			
+			verticalSpace = Math.max(verticalSpace, getVerticalSpace(curModule, mods, module_defs, curWires, addedModules));
+			
+			//if the added module has more connected inputs
+			if(curWires.length > 1){
+				
+				verticalSpace = getNumUsedInputs(curModule, mods, module_defs, curWires, addedModules); 
+				break;
+			}
+		}
+			
+		curY += (verticalSpace -1) * 30;	
+		verticalSpace = 0;
+		numModulesAdded = addedModules.length;	
+		inputEdge = true;
+		outputEdge = false;
+	
+		curY = addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, edgeSources[i], wires, addedModules, mods, loc, inputModule, outputModule, moduleName);
+	}
   }
   
   //returns the vertical space needed for the module
@@ -1010,7 +981,7 @@ function editor(data, autosize_modules) {
   }
  
   //adds the modules (recursive if a module has multiple inputs or outputs wired)
-  function addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, curModule, wires, addedModules, mods, loc){
+  function addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, curModule, wires, addedModules, mods, loc, inputModule, outputModule, moduleName){
 	
 	var module_data;
 	var module_name;
@@ -1034,7 +1005,7 @@ function editor(data, autosize_modules) {
 			
 		//---------------------------
 		
-		var space = singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName)
+		var space = singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName)
 		addedModules.push(curModule);
 			
 		//recursively add the other connected modules
@@ -1045,7 +1016,7 @@ function editor(data, autosize_modules) {
 			curX = curX + 40 + space;  
 			inputEdge = false;
 			outputEdge = false;
-			addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge,  String((curWires[loc].target)[0]), wires, addedModules, mods, loc);
+			addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge,  String((curWires[loc].target)[0]), wires, addedModules, mods, loc, inputModule, outputModule, moduleName);
 			addedModules.push(String(curWires[loc].target)[0]);
 		}
 			
@@ -1082,7 +1053,7 @@ function editor(data, autosize_modules) {
 		output_terminals = module_data.outputs || module_def.outputs || [];
 			
 		//-------
-		singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputTerminal, outputTerminal, moduleName)
+		singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName)
 		addedModules.push(curModule);
 		curX = 0;
 	}
