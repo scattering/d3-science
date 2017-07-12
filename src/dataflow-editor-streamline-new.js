@@ -600,6 +600,7 @@ function editor(data, autosize_modules) {
 		//--------------------------------------------
 		
 		var terminalIndexes = [];
+		
 		terminalIndexes.push(window.prompt("Choose the input terminal:\n" + inputChoices)); 
 		terminalIndexes.push(window.prompt("Choose the output terminal:\n" + outputChoices));  
 		
@@ -634,34 +635,32 @@ function editor(data, autosize_modules) {
 		}
 		
 		//--------------------------------
-		
-		var curModule_data = mods[parseInt(inputModule)];
-		var curModule_name = module_data.module;
-		var curModule_def = module_data.module_def || module_defs[module_name] || {};
-		var curInput_terminals = module_data.inputs || module_def.inputs || []
-		
-		inputs = group.selectAll(".inputs")
-		  .data(curInput_terminals)  
-		  .enter().append("g")
-		  .classed("terminals", true)
-		  .classed("inputs", true)
-		  
-		curModule_data = mods[parseInt(outputModule)];
-		curModule_name = module_data.module;
-		curModule_def = module_data.module_def || module_defs[module_name] || {};
-		var curOutput_terminals = module_data.outputs || module_def.outputs || [];
-		
-		outputs = group.selectAll(".outputs")
-		  .data(curOutput_terminals) 
-		  .enter().append("g")  
-		  .classed("terminals", true)
-		  .classed("outputs", true)
-	
-		//---------------------------------
-			
+
 		//if a combined single module
 		if(module_name === "ncnr.refl.combined_single_module"){
 
+			var curModule_data = mods[parseInt(terminalIndexes[0])];
+			var curModule_name = curModule_data.module;
+			var curModule_def = curModule_data.module_def || module_defs[curModule_name] || {};
+			var curInput_terminals = curModule_data.inputs || curModule_def.inputs || []
+			
+			inputs = group.selectAll(".inputs")
+			  .data(curInput_terminals)  
+			  .enter().append("g")
+			  .classed("terminals", true)
+			  .classed("inputs", true)
+			  
+			curModule_data = mods[parseInt(terminalIndexes[1])];
+			curModule_name = module_data.module;
+			curModule_def = module_data.module_def || module_defs[module_name] || {};
+			var curOutput_terminals = module_data.outputs || module_def.outputs || [];
+			
+			outputs = group.selectAll(".outputs")
+			  .data(curOutput_terminals) 
+			  .enter().append("g")  
+			  .classed("terminals", true)
+			  .classed("outputs", true)
+		  
 			moduleName = window.prompt("Enter the module's name:");
 			moduleType = "combined single";
 			singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName);
@@ -670,6 +669,21 @@ function editor(data, autosize_modules) {
 		//if a combined template module
 		else{
 			
+			var curInput_terminals = input_terminals;
+			var curOutput_terminals = output_terminals;
+			
+			inputs = group.selectAll(".inputs")
+			  .data(curInput_terminals)  
+			  .enter().append("g")
+			  .classed("terminals", true)
+			  .classed("inputs", true)
+			
+			outputs = group.selectAll(".outputs")
+			  .data(curOutput_terminals) 
+			  .enter().append("g")  
+			  .classed("terminals", true)
+			  .classed("outputs", true)
+		  
 			moduleType = "combined template";
 			combinedTemplateModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName, edgeModules)
 		}
@@ -706,7 +720,7 @@ function editor(data, autosize_modules) {
   
    //represents a standard module; returns the module's width
   function singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName){
-	
+
 	var width = 75 + (padding * 2);
     var height = 20 + (padding * 2);
     
@@ -904,6 +918,8 @@ function editor(data, autosize_modules) {
 	var edgeSources = [];
     var edgeTargets = [];
 	
+	mods[mods.length -1].innerWires = wires;
+		
 	//go through the wires
     for (var i=0; i < wires.length; i++) {
 			
@@ -919,8 +935,6 @@ function editor(data, autosize_modules) {
 		//if target source is not there before
 		if(edgeTargets.indexOf(curTarget) === -1)
 			edgeTargets.push(curTarget);
-		
-		mods[mods.length -1].innerWires.push(w);
     }
 	
 	//add the single modules into the template
@@ -1016,7 +1030,7 @@ function editor(data, autosize_modules) {
   
   //returns the number of used inputs that have been added for the module
   function getNumUsedInputs(curModule, mods, module_defs, curWires, addedModules){ 
-	  
+	
 	var module_data = mods[parseInt(curModule)];
 	var module_name = module_data.module;
 	var module_def = module_data.module_def || module_defs[module_name] || {};
