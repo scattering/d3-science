@@ -599,84 +599,72 @@ function editor(data, autosize_modules) {
 		
 		//--------------------------------------------
 		
-		var terminalIndexes = [];
-		var userInputChoice = window.prompt("Choose the input terminal:\n" + inputChoices); 
+		var userInputChoices = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
 		
-		//keep on asking for the input terminal   //to-do (what if not a real option?!?!??!)
-		while(userInputChoice === null || userInputChoice === "" || edgeModules[0].indexOf(userInputChoice) == -1){
+		//keep on asking for the input terminal   
+		while(userInputChoices === null || userInputChoices === ""){
 			
 			window.alert("Choose the module for the input terminal");
-			userInputChoice = window.prompt("Choose the input terminal:\n" + inputChoices); 
+			userInputChoices = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
 		}
 		
-		var userOutputChoice = window.prompt("Choose the output terminal:\n" + outputChoices);
+		var userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");
 		 
 		//keep on asking for the output terminal
-		while(userOutputChoice === null || userOutputChoice === "" || edgeModules[1].indexOf(userOutputChoice) == -1){
+		while(userOutputChoices === null || userOutputChoices === ""){
 			
 			window.alert("Choose the module for the output terminal");
-			userOutputChoice = window.prompt("Choose the output terminal:\n" + outputChoices);  
+			userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");  
 		}
 		
-		terminalIndexes.push(userInputChoice);
-		terminalIndexes.push(userOutputChoice);
+		var userInputs = userInputChoices.split(",");  //to-do: what if enters the stuff incorrectly?
+		var userOutputs = userOutputChoices.split(",");
 		
-		var inputInfo = {
-			name: "combined_input",
-			target: []
-		}	
-	  
-		var outputInfo = {
-			name: "combined_input",
-			target: []
-		}
-		
-		inputInfo.target.push(getWireModInfo(terminalIndexes[0]));
-		outputInfo.target.push(getWireModInfo(terminalIndexes[1]));
-		
-		module_data.innerInputs.push(inputInfo);
-		module_data.innerOutputs.push(outputInfo);
-		
-		//add the parameters
-		for(var i = 0; i < terminalIndexes.length; i++){
+		//add the inputs
+		for(var i = 0; i < userInputs.length; i++){
 			
-			var curParameter = {
-				name: "exposed_parameter" + (i+ 1),
+			var inputInfo = {
+				name: "combined_input",
+				target: []
+			}	
+			
+			inputInfo.target.push(getWireModInfo(userInputs[i]));
+			module_data.innerInputs.push(inputInfo);
+		}
+		
+		//add the outputs
+		for(var i = 0; i < userOutputs.length; i++){
+			
+			var outputInfo = {    
+				name: "combined_input",
 				target: []
 			}
 			
-			curParameter.target.push(terminalIndexes[i]);
-			curParameter.target.push("parameter1");
-			
-			module_data.innerParameters.push(curParameter);
+			outputInfo.target.push(getWireModInfo(userOutputs[i]));
+			module_data.innerOutputs.push(outputInfo);
 		}
+		
+		var userParameters = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
 		
 		//--------------------------------
 
+		var curInput_terminals = input_terminals;
+		var curOutput_terminals = output_terminals;
+			
+		inputs = group.selectAll(".inputs")
+			.data(curInput_terminals)  
+			 .enter().append("g")
+			.classed("terminals", true)
+			.classed("inputs", true)
+			
+		outputs = group.selectAll(".outputs")
+			.data(curOutput_terminals) 
+			.enter().append("g")  
+			.classed("terminals", true)
+			.classed("outputs", true)
+			  
 		//if a combined single module
 		if(module_name === "ncnr.refl.combined_single_module"){
-			
-			var curModule_data = mods[parseInt(terminalIndexes[0])];
-			var curModule_name = curModule_data.module;
-			var curModule_def = curModule_data.module_def || module_defs[curModule_name] || {};
-			var curInput_terminals = curModule_data.inputs || curModule_def.inputs || []
-			
-			inputs = group.selectAll(".inputs")
-			  .data(curInput_terminals)  
-			  .enter().append("g")
-			  .classed("terminals", true)
-			  .classed("inputs", true)
-			  
-			curModule_data = mods[parseInt(terminalIndexes[1])];
-			curModule_name = module_data.module;
-			curModule_def = module_data.module_def || module_defs[module_name] || {};
-			var curOutput_terminals = module_data.outputs || module_def.outputs || [];
-			
-			outputs = group.selectAll(".outputs")
-			  .data(curOutput_terminals) 
-			  .enter().append("g")  
-			  .classed("terminals", true)
-			  .classed("outputs", true)
 		  
 			moduleName = window.prompt("Enter the module's name:");
 			moduleType = "combined single";
@@ -685,22 +673,7 @@ function editor(data, autosize_modules) {
 		
 		//if a combined template module
 		else{
-			
-			var curInput_terminals = input_terminals;
-			var curOutput_terminals = output_terminals;
-			
-			inputs = group.selectAll(".inputs")
-			  .data(curInput_terminals)  
-			  .enter().append("g")
-			  .classed("terminals", true)
-			  .classed("inputs", true)
-			
-			outputs = group.selectAll(".outputs")
-			  .data(curOutput_terminals) 
-			  .enter().append("g")  
-			  .classed("terminals", true)
-			  .classed("outputs", true)
-		  
+
 			moduleType = "combined template";
 			combinedTemplateModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName, edgeModules)
 		}

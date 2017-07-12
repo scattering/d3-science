@@ -404,22 +404,22 @@ d3.select("#combine_mods").on("click", function() {
 	if(e.svg().datum().wires.length === 0)
 		return;
 	
-	var userDisplay = window.prompt("Combined module display:\n\nEnter (s) for Single Module\nEnter (t) for Module Template");
+	var userDisplay = window.prompt("Enter:\ns : Single Module\nt : Module Template");
 	var modules = e.data()[0].modules;
 
 	//if user did not select anything
-	while(userDisplay !== "s" && userDisplay !== "t"){
+	while(userDisplay !== "s" && userDisplay !== "S" && userDisplay !== "t" && userDisplay !== "T"){
 	
 		//if user doesn't want to make a combined module
 		if(userDisplay === null || userDisplay === "")
 			return;
 			
 		window.alert("Select which combined module type you want");
-		userDisplay = window.prompt("Combined module display:\n\nEnter (s) for Single Module\nEnter (t) for Module Template");
+		userDisplay = window.prompt("Enter:\n s : Single Module\nt : Module Template");
 	}
 		
 	//if single module display
-	if(userDisplay === "s"){
+	if(userDisplay === "s" || userDisplay == "S"){
 		
 		var title = "Combined Single Module";
 		var module = "ncnr.refl.combined_single_module"; 
