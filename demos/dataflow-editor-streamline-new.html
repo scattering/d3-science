@@ -407,6 +407,17 @@ d3.select("#combine_mods").on("click", function() {
 	var userDisplay = window.prompt("Combined module display:\n\nEnter (s) for Single Module\nEnter (t) for Module Template");
 	var modules = e.data()[0].modules;
 
+	//if user did not select anything
+	while(userDisplay !== "s" && userDisplay !== "t"){
+	
+		//if user doesn't want to make a combined module
+		if(userDisplay === null || userDisplay === "")
+			return;
+			
+		window.alert("Select which combined module type you want");
+		userDisplay = window.prompt("Combined module display:\n\nEnter (s) for Single Module\nEnter (t) for Module Template");
+	}
+		
 	//if single module display
 	if(userDisplay === "s"){
 		
@@ -419,7 +430,7 @@ d3.select("#combine_mods").on("click", function() {
 	}
 	
 	//if module template display
-	else if(userDisplay === "t"){
+	else{
 	
 		var title = "Combined Template Module";
 		var module = "ncnr.refl.combined_template_module"; 

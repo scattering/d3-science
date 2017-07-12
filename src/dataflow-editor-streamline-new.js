@@ -600,9 +600,26 @@ function editor(data, autosize_modules) {
 		//--------------------------------------------
 		
 		var terminalIndexes = [];
+		var userInputChoice = window.prompt("Choose the input terminal:\n" + inputChoices); 
 		
-		terminalIndexes.push(window.prompt("Choose the input terminal:\n" + inputChoices)); 
-		terminalIndexes.push(window.prompt("Choose the output terminal:\n" + outputChoices));  
+		//keep on asking for the input terminal   //to-do (what if not a real option?!?!??!)
+		while(userInputChoice === null || userInputChoice === "" || edgeModules[0].indexOf(userInputChoice) == -1){
+			
+			window.alert("Choose the module for the input terminal");
+			userInputChoice = window.prompt("Choose the input terminal:\n" + inputChoices); 
+		}
+		
+		var userOutputChoice = window.prompt("Choose the output terminal:\n" + outputChoices);
+		 
+		//keep on asking for the output terminal
+		while(userOutputChoice === null || userOutputChoice === "" || edgeModules[1].indexOf(userOutputChoice) == -1){
+			
+			window.alert("Choose the module for the output terminal");
+			userOutputChoice = window.prompt("Choose the output terminal:\n" + outputChoices);  
+		}
+		
+		terminalIndexes.push(userInputChoice);
+		terminalIndexes.push(userOutputChoice);
 		
 		var inputInfo = {
 			name: "combined_input",
@@ -638,7 +655,7 @@ function editor(data, autosize_modules) {
 
 		//if a combined single module
 		if(module_name === "ncnr.refl.combined_single_module"){
-
+			
 			var curModule_data = mods[parseInt(terminalIndexes[0])];
 			var curModule_name = curModule_data.module;
 			var curModule_def = curModule_data.module_def || module_defs[curModule_name] || {};
