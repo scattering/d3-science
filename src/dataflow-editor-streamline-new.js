@@ -122,7 +122,7 @@ function editor(data, autosize_modules) {
   }
 
   //updates the modules and their wires
-  function update() {
+  function update() { 
 
     var id_to_index = {},
         old_ids = {},
@@ -131,7 +131,7 @@ function editor(data, autosize_modules) {
         index_updates = {},
         additions = [],
         removals = [];
-        
+    
     //need to add module_ids to any modules that are missing them
     var key_fn = function(d) {
 		
@@ -321,7 +321,7 @@ function editor(data, autosize_modules) {
   
   //exports the modules
   editor.export = function() {
-	 
+	
     //strip the internally-used module_id on the way out
     var export_data = extend(true, {}, svg.datum());     
 	
@@ -688,7 +688,7 @@ function editor(data, autosize_modules) {
 			combinedTemplateModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName, edgeModules)
 		}
 	}
-	
+		
     group.call(drag);
     return group.node(); 
   }
@@ -720,7 +720,7 @@ function editor(data, autosize_modules) {
   
    //represents a standard module; returns the module's width
   function singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName){
-
+	
 	var width = 75 + (padding * 2);
     var height = 20 + (padding * 2);
     
@@ -917,8 +917,6 @@ function editor(data, autosize_modules) {
 	var wires = svg.datum().wires;  
 	var edgeSources = [];
     var edgeTargets = [];
-	
-	mods[mods.length -1].innerWires = wires;
 		
 	//go through the wires
     for (var i=0; i < wires.length; i++) {
@@ -935,6 +933,16 @@ function editor(data, autosize_modules) {
 		//if target source is not there before
 		if(edgeTargets.indexOf(curTarget) === -1)
 			edgeTargets.push(curTarget);
+		
+		var newWire = {
+			source: [],
+			target: []
+		}	
+		
+		newWire.source.push(w.source[0]);
+		newWire.target.push(w.target[0]);
+	
+		mods[mods.length-1].innerWires.push(newWire);
     }
 	
 	//add the single modules into the template
