@@ -582,83 +582,124 @@ function editor(data, autosize_modules) {
 		module_data.innerWires = [];
 		module_data.innerInputs = [];
 		module_data.innerOutputs = [];
-		module_data.innerParameters = [];
+		module_data.parameters = [];
 		
 		var mods = svg.datum().modules;
 		var edgeModules = getEdgeModules();
 		var inputChoices = "";
 		var outputChoices = "";
+		var numInputTerminals = 0;
+		var numOutputTerminals = 0;
 		
 		//create the input choices
-		for(var i = 0; i < edgeModules[0].length; i++)
-			inputChoices += edgeModules[0][i] + " : " + mods[edgeModules[0][i]].title + "\n";
-		
+		for(var i = 0; i < edgeModules[0].length; i++){
+			
+			var curModule_data = mods[parseInt(edgeModules[0][i])];
+			var curModule_name = curModule_data.module;
+			var curModule_def = curModule_data.module_def || module_defs[curModule_name] || {};
+			var curInput_terminals = curModule_data.inputs || curModule_def.inputs || []
+			
+			//if module has input terminal
+			if(curInput_terminals.length > 0){
+				
+				inputChoices += edgeModules[0][i] + " : " + mods[edgeModules[0][i]].title + "\n";
+				numInputTerminals++;
+			}
+		}
 		//create the output choices
-		for(var i = 0; i < edgeModules[1].length; i++)
-			outputChoices += edgeModules[1][i] + " : " +  mods[edgeModules[1][i]].title + "\n";
-		
+		for(var i = 0; i < edgeModules[1].length; i++){
+			
+			var curModule_data = mods[parseInt(edgeModules[1][i])];
+			var curModule_name = curModule_data.module;
+			var curModule_def = curModule_data.module_def || module_defs[curModule_name] || {};
+			var curOutput_terminals = curModule_data.outputs || curModule_def.outputs || [];
+				
+			//if module has output terminal
+			if(curOutput_terminals.length > 0){
+				
+				outputChoices += edgeModules[1][i] + " : " + mods[edgeModules[1][i]].title + "\n";
+				numOutputTerminals++;
+			}
+		}
 		//--------------------------------------------
 		
-		var userInputChoices = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
-		
-		//keep on asking for the input terminal   
-		while(userInputChoices === null || userInputChoices === ""){
+		//if has inputs to choose from
+		if(numInputTerminals !== 0){
 			
-			window.alert("Choose the module for the input terminal");
-			userInputChoices = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
-		}
+			var userInputChoices = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
 		
-		var userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");
-		 
-		//keep on asking for the output terminal
-		while(userOutputChoices === null || userOutputChoices === ""){
-			
-			window.alert("Choose the module for the output terminal");
-			userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");  
-		}
-		
-		var userInputs = userInputChoices.split(",");  //to-do: what if enters the stuff incorrectly?
-		var userOutputs = userOutputChoices.split(",");
-		
-		//add the inputs
-		for(var i = 0; i < userInputs.length; i++){
-			
-			var inputInfo = {
-				name: "combined_input",
-				target: []
-			}	
-			
-			inputInfo.target.push(getWireModInfo(userInputs[i]));
-			module_data.innerInputs.push(inputInfo);
-		}
-		
-		//add the outputs
-		for(var i = 0; i < userOutputs.length; i++){
-			
-			var outputInfo = {    
-				name: "combined_input",
-				target: []
+			//keep on asking for the input terminal   
+			while(userInputChoices === null || userInputChoices === ""){
+				
+				window.alert("Choose the module for the input terminal");
+				userInputChoices = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
 			}
 			
-			outputInfo.target.push(getWireModInfo(userOutputs[i]));
-			module_data.innerOutputs.push(outputInfo);
+			var userInputs = userInputChoices.split(",");  
+			
+			//add the inputs
+			for(var i = 0; i < userInputs.length; i++){
+				
+				var inputInfo = {
+					name: "combined_input",
+					target: []
+				}	
+				
+				inputInfo.target.push([userInputs[i], "input"]);
+				module_data.innerInputs.push(inputInfo);
+			}
 		}
 		
-		var userParameters = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
+		//if no inputs to choose from
+		else
+			window.alert("No inputs to choose from");
+		
+		//if has outputs to choose from
+		if(numOutputTerminals !== 0){
+			
+			var userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");
+		 
+			//keep on asking for the output terminal
+			while(userOutputChoices === null || userOutputChoices === ""){
+				
+				window.alert("Choose the module for the output terminal");
+				userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");  
+			}
+			
+			
+			var userOutputs = userOutputChoices.split(",");
+			
+			
+			
+			//add the outputs
+			for(var i = 0; i < userOutputs.length; i++){
+				
+				var outputInfo = {    
+					name: "combined_input",
+					target: []
+				}
+				
+				outputInfo.target.push([userOutputs[i], "output"]);
+				module_data.innerOutputs.push(outputInfo);
+			}
+		}
+		
+		//if no outputs to choose from
+		else
+			window.alert("No outputs to choose from");
+	
+		var userParameters = window.prompt("Choose which parameters will be exposed:\n" + inputChoices + "\n(Example : 3,4,5)"); 
 		
 		//--------------------------------
-
-		var curInput_terminals = input_terminals;
-		var curOutput_terminals = output_terminals;
 			
 		inputs = group.selectAll(".inputs")
-			.data(curInput_terminals)  
+			.data(input_terminals)  
 			 .enter().append("g")
 			.classed("terminals", true)
 			.classed("inputs", true)
 			
 		outputs = group.selectAll(".outputs")
-			.data(curOutput_terminals) 
+			.data(output_terminals) 
 			.enter().append("g")  
 			.classed("terminals", true)
 			.classed("outputs", true)
@@ -681,31 +722,6 @@ function editor(data, autosize_modules) {
 		
     group.call(drag);
     return group.node(); 
-  }
-  
-  //returns the module's information from the wires
-  function getWireModInfo(index){
-	  
-	var wires = svg.datum().wires;  
-	
-	//go through the wires
-	for(var i = 0; i < wires.length; i++){
-		
-		var w = wires[i];
-		
-		var curSource = String(w.source).split(",")[0];
-		var curTarget = String(w.target).split(",")[0];
-		
-		//if source is the module
-		if(index === curSource)
-			return w.source;
-		
-		//if target is the module
-		else if(index === curTarget)
-			return w.target
-	}
-	
-	return "";
   }
   
    //represents a standard module; returns the module's width
