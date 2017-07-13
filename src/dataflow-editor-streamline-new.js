@@ -739,6 +739,16 @@ function editor(data, autosize_modules) {
 		}
 		
 		//--------------------------------
+		
+		//go through the modules for the configs
+		for(var i = 0; i < mods.length - 1; i++){
+			
+			//if the current module has configs
+			if(mods[i].config !== undefined)
+				module_data.config.push(JSON.stringify(mods[i].config) + " : " + i);
+		}
+		
+		//--------------------------------
 			
 		inputs = group.selectAll(".inputs")
 			.data(input_terminals)  
