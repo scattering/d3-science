@@ -916,13 +916,13 @@ function editor(data, autosize_modules) {
 			
 		var userInputChoices = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
 		
-		//keep on asking for the input terminal   
-		while(userInputChoices === null || userInputChoices === ""){
-				
-			window.alert("Choose the module for the input terminal");
-			userInputChoices = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
-		}
+		//if user doesn't select anything
+		if(userInputChoices === null || userInputChoices === ""){
 			
+			window.alert("No module for input selected");
+			return;
+		}
+		
 		var userInputs = userInputChoices.split(",");  
 			
 		//add the inputs
@@ -970,11 +970,11 @@ function editor(data, autosize_modules) {
 			
 		var userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");
 		 
-		//keep on asking for the output terminal
-		while(userOutputChoices === null || userOutputChoices === ""){
-				
-			window.alert("Choose the module for the output terminal");
-			userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");  
+		//if user doesn't select anything
+		if(userOutputChoices === null || userOutputChoices === ""){
+			
+			window.alert("No module for output selected");
+			return;
 		}
 			
 		var userOutputs = userOutputChoices.split(",");
@@ -1019,11 +1019,11 @@ function editor(data, autosize_modules) {
 			
 		var userParameters = window.prompt("Choose which parameters will be exposed:\n" + parameterChoices + "\n(Example : 3,4,5)"); 
 			
-		//keep on asking for the parameters
-		while(userParameters === null || userParameters === ""){
-				
-			window.alert("Choose the exposed parameters");
-			userParameters = window.prompt("Add the output terminals:\n" + parameterChoices + "\n(Example : 3,4,5)");  
+		//if user doesn't select anything
+		if(userParameters === null || userParameters === ""){
+			
+			window.alert("No parameters selected");
+			return;
 		}
 			
 		var chosenParameters = userParameters.split(",");
