@@ -583,6 +583,7 @@ function editor(data, autosize_modules) {
 		module_data.innerInputs = [];
 		module_data.innerOutputs = [];
 		module_data.parameters = [];
+		module_data.config = [];
 		
 		var mods = svg.datum().modules;
 		var edgeModules = getEdgeModules();
@@ -602,10 +603,11 @@ function editor(data, autosize_modules) {
 			//if module has input terminal
 			if(curInput_terminals.length > 0){
 				
-				inputChoices += edgeModules[0][i] + " : " + mods[edgeModules[0][i]].title + "\n";
+				inputChoices += edgeModules[0][i] + " : " + mods[edgeModules[0][i]].title + "\n";	
 				numInputTerminals++;
 			}
 		}
+		
 		//create the output choices
 		for(var i = 0; i < edgeModules[1].length; i++){
 			
@@ -621,6 +623,7 @@ function editor(data, autosize_modules) {
 				numOutputTerminals++;
 			}
 		}
+		
 		//--------------------------------------------
 		
 		//if has inputs to choose from
@@ -666,10 +669,7 @@ function editor(data, autosize_modules) {
 				userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");  
 			}
 			
-			
 			var userOutputs = userOutputChoices.split(",");
-			
-			
 			
 			//add the outputs
 			for(var i = 0; i < userOutputs.length; i++){
@@ -688,7 +688,55 @@ function editor(data, autosize_modules) {
 		else
 			window.alert("No outputs to choose from");
 	
-		var userParameters = window.prompt("Choose which parameters will be exposed:\n" + inputChoices + "\n(Example : 3,4,5)"); 
+		//-----------------------------------------------
+	
+		var parameterChoices = "";
+		var numParameters  = 0;
+		
+		//go through the modules
+		for(var i = 0; i < mods.length - 1; i++){
+			
+			//if the current module has configs
+			if(mods[i].config !== undefined){
+				
+				parameterChoices += i + " : " + JSON.stringify(mods[i].config) + "\n";
+				numParameters++;
+			}
+		}
+		
+		//if no parameters
+		if(numParameters === 0)
+			window.alert("No parameters to choose from");
+		
+		//if there are parameters
+		else{
+			
+			var userParameters = window.prompt("Choose which parameters will be exposed:\n" + parameterChoices + "\n(Example : 3,4,5)"); 
+			
+			//keep on asking for the parameters
+			while(userParameters === null || userParameters === ""){
+				
+				window.alert("Choose the exposed parameters");
+				userParameters = window.prompt("Add the output terminals:\n" + parameterChoices + "\n(Example : 3,4,5)");  
+			}
+			
+			var chosenParameters = userParameters.split(",");
+			var displayParameters = [];
+			
+			//go through the parameters
+			for(var i = 0; i < chosenParameters.length; i++){
+				
+				var parameterName = window.prompt("Enter name of " + chosenParameters[i] + " : " + JSON.stringify(mods[parseInt(chosenParameters[i])].config) + ":\n"); 
+				
+				var curPar = {
+					name: parameterName, 
+					target: []
+				}
+				
+				curPar.target.push([chosenParameters[i], JSON.stringify(mods[parseInt(chosenParameters[i])].config)]);
+				module_data.parameters.push(curPar);
+			}
+		}
 		
 		//--------------------------------
 			
