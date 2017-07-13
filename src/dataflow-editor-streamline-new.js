@@ -534,14 +534,17 @@ function editor(data, autosize_modules) {
 	var titletext;
 	var inputs;
 	var outputs;
+	
 	var moduleType = "single"
 	var inputEdge = true; 
 	var outputEdge = true;
-	var curX = 0;
-	var curY = 0;
+	
 	var inputModule = "";
 	var outputModule = "";
 	var moduleName = "";
+	
+	var curX = 0;
+	var curY = 0;
 	
 	//create and append module HTML element
     group = d3.select(this).append("g")
@@ -577,9 +580,9 @@ function editor(data, autosize_modules) {
 	
 	//if a combined module	
 	else{	
-	
+		
 		module_data.innerModules = [];
-		module_data.innerWires = [];
+		module_data.innerWires = [];  
 		module_data.innerInputs = [];
 		module_data.innerOutputs = [];
 		module_data.parameters = [];
@@ -587,172 +590,15 @@ function editor(data, autosize_modules) {
 		
 		var mods = svg.datum().modules;
 		var edgeModules = getEdgeModules();
-		var inputChoices = "";
-		var outputChoices = "";
-		var numInputTerminals = 0;
-		var numOutputTerminals = 0;
 		
-		//create the input choices
-		for(var i = 0; i < edgeModules[0].length; i++){
-			
-			var curModule_data = mods[parseInt(edgeModules[0][i])];
-			var curModule_name = curModule_data.module;
-			var curModule_def = curModule_data.module_def || module_defs[curModule_name] || {};
-			var curInput_terminals = curModule_data.inputs || curModule_def.inputs || []
-			
-			//if module has input terminal
-			if(curInput_terminals.length > 0){
-				
-				inputChoices += edgeModules[0][i] + " : " + mods[edgeModules[0][i]].title + "\n";	
-				numInputTerminals++;
-			}
-		}
-		
-		//create the output choices
-		for(var i = 0; i < edgeModules[1].length; i++){
-			
-			var curModule_data = mods[parseInt(edgeModules[1][i])];
-			var curModule_name = curModule_data.module;
-			var curModule_def = curModule_data.module_def || module_defs[curModule_name] || {};
-			var curOutput_terminals = curModule_data.outputs || curModule_def.outputs || [];
-				
-			//if module has output terminal
-			if(curOutput_terminals.length > 0){
-				
-				outputChoices += edgeModules[1][i] + " : " + mods[edgeModules[1][i]].title + "\n";
-				numOutputTerminals++;
-			}
-		}
-		
-		//--------------------------------------------
-		
-		//if has inputs to choose from
-		if(numInputTerminals !== 0){
-			
-			var userInputChoices = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
-		
-			//keep on asking for the input terminal   
-			while(userInputChoices === null || userInputChoices === ""){
-				
-				window.alert("Choose the module for the input terminal");
-				userInputChoices = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
-			}
-			
-			var userInputs = userInputChoices.split(",");  
-			
-			//add the inputs
-			for(var i = 0; i < userInputs.length; i++){
-				
-				var inputInfo = {
-					name: "combined_input",
-					target: []
-				}	
-				
-				inputInfo.target.push([userInputs[i], "input"]);
-				module_data.innerInputs.push(inputInfo);
-			}
-		}
-		
-		//if no inputs to choose from
-		else
-			window.alert("No inputs to choose from");
-		
-		//if has outputs to choose from
-		if(numOutputTerminals !== 0){
-			
-			var userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");
-		 
-			//keep on asking for the output terminal
-			while(userOutputChoices === null || userOutputChoices === ""){
-				
-				window.alert("Choose the module for the output terminal");
-				userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");  
-			}
-			
-			var userOutputs = userOutputChoices.split(",");
-			
-			//add the outputs
-			for(var i = 0; i < userOutputs.length; i++){
-				
-				var outputInfo = {    
-					name: "combined_input",
-					target: []
-				}
-				
-				outputInfo.target.push([userOutputs[i], "output"]);
-				module_data.innerOutputs.push(outputInfo);
-			}
-		}
-		
-		//if no outputs to choose from
-		else
-			window.alert("No outputs to choose from");
-	
-		//-----------------------------------------------
-	
-		var parameterChoices = "";
-		var numParameters  = 0;
-		
-		//go through the modules
-		for(var i = 0; i < mods.length - 1; i++){
-			
-			//if the current module has configs
-			if(mods[i].config !== undefined){
-				
-				parameterChoices += i + " : " + JSON.stringify(mods[i].config) + "\n";
-				numParameters++;
-			}
-		}
-		
-		//if no parameters
-		if(numParameters === 0)
-			window.alert("No parameters to choose from");
-		
-		//if there are parameters
-		else{
-			
-			var userParameters = window.prompt("Choose which parameters will be exposed:\n" + parameterChoices + "\n(Example : 3,4,5)"); 
-			
-			//keep on asking for the parameters
-			while(userParameters === null || userParameters === ""){
-				
-				window.alert("Choose the exposed parameters");
-				userParameters = window.prompt("Add the output terminals:\n" + parameterChoices + "\n(Example : 3,4,5)");  
-			}
-			
-			var chosenParameters = userParameters.split(",");
-			var displayParameters = [];
-			
-			//go through the parameters
-			for(var i = 0; i < chosenParameters.length; i++){
-				
-				var parameterName = window.prompt("Enter name of " + chosenParameters[i] + " : " + JSON.stringify(mods[parseInt(chosenParameters[i])].config) + ":\n"); 
-				
-				var curPar = {
-					name: parameterName, 
-					target: []
-				}
-				
-				curPar.target.push([chosenParameters[i], JSON.stringify(mods[parseInt(chosenParameters[i])].config)]);
-				module_data.parameters.push(curPar);
-			}
-		}
-		
-		//--------------------------------
-		
-		//go through the modules for the configs
-		for(var i = 0; i < mods.length - 1; i++){
-			
-			//if the current module has configs
-			if(mods[i].config !== undefined)
-				module_data.config.push(JSON.stringify(mods[i].config) + " : " + i);
-		}
-		
-		//--------------------------------
+		createCombinedInputs(mods, module_data, edgeModules, module_defs);
+		createCombinedOutputs(mods, module_data, edgeModules, module_defs);
+		createCombinedParameters(mods, module_data);
+		createCombinedConfigs(mods, module_data);
 			
 		inputs = group.selectAll(".inputs")
 			.data(input_terminals)  
-			 .enter().append("g")
+			.enter().append("g")
 			.classed("terminals", true)
 			.classed("inputs", true)
 			
@@ -782,7 +628,7 @@ function editor(data, autosize_modules) {
     return group.node(); 
   }
   
-   //represents a standard module; returns the module's width
+  //represents a standard module; returns the module's width
   function singleModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName){
 	
 	var width = 75 + (padding * 2);
@@ -974,7 +820,7 @@ function editor(data, autosize_modules) {
 	return width;  
   }
   
-  //returns the edge modules (edgeSources, edgeTargets)
+   //returns the edge modules (edgeSources, edgeTargets)
   function getEdgeModules(){
 	
 	var mods = svg.datum().modules;
@@ -984,7 +830,7 @@ function editor(data, autosize_modules) {
 		
 	//go through the wires
     for (var i=0; i < wires.length; i++) {
-			
+		
         var w = wires[i]; 
 		
 		var curSource = (String(w.source)).split(",")[0];    
@@ -1039,6 +885,178 @@ function editor(data, autosize_modules) {
 	return [edgeSources, edgeTargets];
   }
   
+  //creates the inputs for the combined module
+  function createCombinedInputs(mods, module_data, edgeModules, module_defs){
+	  
+	var inputChoices = "";
+	var numInputTerminals = 0;
+	
+	 //create the input choices
+	for(var i = 0; i < edgeModules[0].length; i++){
+			
+		var curModule_data = mods[parseInt(edgeModules[0][i])];
+		var curModule_name = curModule_data.module;
+		var curModule_def = curModule_data.module_def || module_defs[curModule_name] || {};
+		var curInput_terminals = curModule_data.inputs || curModule_def.inputs || []
+			
+		//if module has input terminal
+		if(curInput_terminals.length > 0){
+				
+			inputChoices += edgeModules[0][i] + " : " + mods[edgeModules[0][i]].title + "\n";	
+			numInputTerminals++;
+		}
+	}
+		
+	//if has no inputs to choose from
+	if(numInputTerminals === 0)
+		window.alert("No inputs to choose from");
+		
+	//if inputs to choose from
+	else{
+			
+		var userInputChoices = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
+		
+		//keep on asking for the input terminal   
+		while(userInputChoices === null || userInputChoices === ""){
+				
+			window.alert("Choose the module for the input terminal");
+			userInputChoices = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
+		}
+			
+		var userInputs = userInputChoices.split(",");  
+			
+		//add the inputs
+		for(var i = 0; i < userInputs.length; i++){
+				
+			var inputInfo = {
+				name: "combined_input",
+				target: []
+			}	
+				
+			inputInfo.target.push([userInputs[i], "input"]);
+			module_data.innerInputs.push(inputInfo);
+		}
+	}	
+  }
+  
+  //creates the inputs for the combined module
+  function createCombinedOutputs(mods, module_data, edgeModules, module_defs){
+	  
+	var outputChoices = "";  
+	var numOutputTerminals = 0;
+	
+	//create the output choices
+	for(var i = 0; i < edgeModules[1].length; i++){
+			
+		var curModule_data = mods[parseInt(edgeModules[1][i])];
+		var curModule_name = curModule_data.module;
+		var curModule_def = curModule_data.module_def || module_defs[curModule_name] || {};
+		var curOutput_terminals = curModule_data.outputs || curModule_def.outputs || [];
+				
+		//if module has output terminal
+		if(curOutput_terminals.length > 0){
+				
+			outputChoices += edgeModules[1][i] + " : " + mods[edgeModules[1][i]].title + "\n";
+			numOutputTerminals++;
+		}
+	}
+		
+	//if has no outputs to choose from
+	if(numOutputTerminals === 0)
+		window.alert("No outputs to choose from");
+		
+	//if outputs to choose from
+	else{
+			
+		var userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");
+		 
+		//keep on asking for the output terminal
+		while(userOutputChoices === null || userOutputChoices === ""){
+				
+			window.alert("Choose the module for the output terminal");
+			userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");  
+		}
+			
+		var userOutputs = userOutputChoices.split(",");
+			
+		//add the outputs
+		for(var i = 0; i < userOutputs.length; i++){
+				
+			var outputInfo = {    
+				name: "combined_input",
+				target: []
+			}
+				
+			outputInfo.target.push([userOutputs[i], "output"]);
+			module_data.innerOutputs.push(outputInfo);
+		}
+	}  
+  }
+  
+  //creates the inputs for the combined module
+  function createCombinedParameters(mods, module_data){
+  
+	var parameterChoices = "";
+	var numParameters  = 0;
+		
+	//go through the modules
+	for(var i = 0; i < mods.length - 1; i++){
+			
+		//if the current module has configs
+		if(mods[i].config !== undefined){
+				
+			parameterChoices += i + " : " + JSON.stringify(mods[i].config) + "\n";
+			numParameters++;
+		}
+	}
+		
+	//if no parameters
+	if(numParameters === 0)
+		window.alert("No parameters to choose from");
+		
+	//if there are parameters
+	else{
+			
+		var userParameters = window.prompt("Choose which parameters will be exposed:\n" + parameterChoices + "\n(Example : 3,4,5)"); 
+			
+		//keep on asking for the parameters
+		while(userParameters === null || userParameters === ""){
+				
+			window.alert("Choose the exposed parameters");
+			userParameters = window.prompt("Add the output terminals:\n" + parameterChoices + "\n(Example : 3,4,5)");  
+		}
+			
+		var chosenParameters = userParameters.split(",");
+		var displayParameters = [];
+			
+		//go through the parameters
+		for(var i = 0; i < chosenParameters.length; i++){
+				
+			var parameterName = window.prompt("Enter name of " + chosenParameters[i] + " : " + JSON.stringify(mods[parseInt(chosenParameters[i])].config) + ":\n"); 
+				
+			var curPar = {
+				name: parameterName, 
+				target: []
+			}
+				
+			curPar.target.push([chosenParameters[i], JSON.stringify(mods[parseInt(chosenParameters[i])].config)]);
+			module_data.parameters.push(curPar);
+		}
+	}
+  }
+  
+  //creates the inputs for the combined module
+  function createCombinedConfigs(mods, module_data){
+	  
+	//go through the modules for the configs
+	for(var i = 0; i < mods.length - 1; i++){
+			
+		//if the current module has configs
+		if(mods[i].config !== undefined)
+			module_data.config.push(JSON.stringify(mods[i].config) + " : " + i);
+	}
+  }
+  
   //represents modules combined into one template
   function combinedTemplateModule(moduleType, module_data, group, input_terminals, output_terminals, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, inputModule, outputModule, moduleName, edgeModules){
 	
@@ -1088,45 +1106,6 @@ function editor(data, autosize_modules) {
 	}
   }
   
-  //returns the vertical space needed for the module
-  function getVerticalSpace(curModule, mods, module_defs, curWires, addedModules){ 
-  
-	var module_data = mods[parseInt(curModule)];
-	var module_name = module_data.module;
-	var module_def = module_data.module_def || module_defs[module_name] || {};
-	var input_terminals = module_data.inputs || module_def.inputs || [],
-		output_terminals = module_data.outputs || module_def.outputs || [];
-	
-	return Math.max(input_terminals.length, output_terminals.length);
-  }
-  
-  //returns the number of used inputs that have been added for the module
-  function getNumUsedInputs(curModule, mods, module_defs, curWires, addedModules){ 
-	
-	var module_data = mods[parseInt(curModule)];
-	var module_name = module_data.module;
-	var module_def = module_data.module_def || module_defs[module_name] || {};
-	var input_terminals = module_data.inputs || module_def.inputs || []
-		
-	var numUsedInputs = 0;
-	
-	//go through the wires
-	for(var i = 0; i < curWires.length; i++){
-		
-		var curSource = String(curWires[i].source)[0];
-		
-		//go through the added modules so far
-		for(var j = 0; j < addedModules.length; j++){
-		
-			//if found a used input module that has been added
-			if(addedModules[j] === curSource)
-				numUsedInputs++;
-		}
-	}
-	
-	return numUsedInputs;
-  }
- 
   //adds the modules (recursive if a module has multiple inputs or outputs wired)
   function addModule(moduleType, group, padding, title, inputs, outputs, titletext, curX, curY, module_defs, inputEdge, outputEdge, curModule, wires, addedModules, mods, loc, inputModule, outputModule, moduleName){
 	
@@ -1210,6 +1189,24 @@ function editor(data, autosize_modules) {
 	return curY;
   }
   
+  //returns the wire that the module is the target of
+  function getTargetWires(wires, target){
+	
+	var targetWires = [];
+	
+	 //go through the wires
+	 for(var i = 0; i < wires.length; i++){
+
+		var curWire = wires[i];		
+		
+		//if found the wire
+		if(String(curWire.target).split(",")[0] === target)
+			targetWires.push(curWire);
+	  }
+	  
+	  return targetWires;
+  }
+  
   //returns the wire that the module is the source of
   function getSourceWires(wires, source){
 	
@@ -1228,22 +1225,43 @@ function editor(data, autosize_modules) {
 	  return sourceWires;
   }
   
-  //returns the wire that the module is the target of
-  function getTargetWires(wires, target){
+  //returns the vertical space needed for the module
+  function getVerticalSpace(curModule, mods, module_defs, curWires, addedModules){ 
+  
+	var module_data = mods[parseInt(curModule)];
+	var module_name = module_data.module;
+	var module_def = module_data.module_def || module_defs[module_name] || {};
+	var input_terminals = module_data.inputs || module_def.inputs || [],
+		output_terminals = module_data.outputs || module_def.outputs || [];
 	
-	var targetWires = [];
+	return Math.max(input_terminals.length, output_terminals.length);
+  }
+  
+  //returns the number of used inputs that have been added for the module
+  function getNumUsedInputs(curModule, mods, module_defs, curWires, addedModules){ 
 	
-	 //go through the wires
-	 for(var i = 0; i < wires.length; i++){
-
-		var curWire = wires[i];		
+	var module_data = mods[parseInt(curModule)];
+	var module_name = module_data.module;
+	var module_def = module_data.module_def || module_defs[module_name] || {};
+	var input_terminals = module_data.inputs || module_def.inputs || []
 		
-		//if found the wire
-		if(String(curWire.target).split(",")[0] === target)
-			targetWires.push(curWire);
-	  }
-	  
-	  return targetWires;
+	var numUsedInputs = 0;
+	
+	//go through the wires
+	for(var i = 0; i < curWires.length; i++){
+		
+		var curSource = String(curWires[i].source)[0];
+		
+		//go through the added modules so far
+		for(var j = 0; j < addedModules.length; j++){
+		
+			//if found a used input module that has been added
+			if(addedModules[j] === curSource)
+				numUsedInputs++;
+		}
+	}
+	
+	return numUsedInputs;
   }
   
   //returns whether the connector has a node
