@@ -1011,7 +1011,7 @@ function editor(data, autosize_modules) {
 	return Math.min(numOutputTerminals, numOutputs);
   }
   
-  //creates the inputs for the combined module
+  //creates the inputs for the combined module --> all possible parameters can be exposed
   function createCombinedParameters(mods, module_data){
   
 	var parameterChoices = "";
