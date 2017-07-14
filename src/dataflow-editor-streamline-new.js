@@ -1057,7 +1057,7 @@ function editor(data, autosize_modules) {
 				target: []
 			}
 				
-			curPar.target.push([chosenParameters[i], JSON.stringify(mods[parseInt(chosenParameters[i])].config)]);
+			curPar.target.push([chosenParameters[i], mods[parseInt(chosenParameters[i])].config]); 
 			module_data.parameters.push(curPar);
 		}
 	}
@@ -1071,7 +1071,7 @@ function editor(data, autosize_modules) {
 			
 		//if the current module has configs
 		if(mods[i].config !== undefined)
-			module_data.config.push(JSON.stringify(mods[i].config) + " : " + i);
+			module_data.config.push([i, mods[i].config]);
 	}
   }
   
