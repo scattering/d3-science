@@ -376,6 +376,11 @@ function editor(data, autosize_modules) {
     return editor;
   }
   
+  //expands the combined module
+  editor.expandCombinedModule = function(){
+	expandCombinedModule();  
+  }
+  
   editor.update = update;
   editor.draw_wires = draw_wires;
   
@@ -596,12 +601,12 @@ function editor(data, autosize_modules) {
 		createCombinedParameters(mods, module_data);
 		createCombinedConfigs(mods, module_data);
 			
-		//if no inputs
-		if(numInputs === 0)
+		//if no inputs and for the combined single module
+		if(numInputs === 0 && module_data.module === "ncnr.refl.combined_single_module")
 			input_terminals.pop();
 		
-		//if no outputs
-		if(numOutputs === 0)
+		//if no outputs and for the combined single module
+		if(numOutputs === 0 && module_data.module === "ncnr.refl.combined_single_module")
 			output_terminals.pop();
 		
 		inputs = group.selectAll(".inputs")
@@ -1280,6 +1285,13 @@ function editor(data, autosize_modules) {
 	}
 	
 	return numUsedInputs;
+  }
+  
+  //expands the combined module
+  function expandCombinedModule(){
+	  
+	  
+	  
   }
   
   //returns whether the connector has a node
