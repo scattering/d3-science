@@ -591,17 +591,25 @@ function editor(data, autosize_modules) {
 		var mods = svg.datum().modules;
 		var edgeModules = getEdgeModules();
 		
-		createCombinedInputs(mods, module_data, edgeModules, module_defs);
-		createCombinedOutputs(mods, module_data, edgeModules, module_defs);
+		var numInputs = createCombinedInputs(mods, module_data, edgeModules, module_defs);
+		var numOutputs = createCombinedOutputs(mods, module_data, edgeModules, module_defs);
 		createCombinedParameters(mods, module_data);
 		createCombinedConfigs(mods, module_data);
 			
+		//if no inputs
+		if(numInputs === 0)
+			input_terminals.pop();
+		
+		//if no outputs
+		if(numOutputs === 0)
+			output_terminals.pop();
+		
 		inputs = group.selectAll(".inputs")
-			.data(input_terminals)  
+			.data(input_terminals)  			
 			.enter().append("g")
 			.classed("terminals", true)
 			.classed("inputs", true)
-			
+		
 		outputs = group.selectAll(".outputs")
 			.data(output_terminals) 
 			.enter().append("g")  
@@ -885,11 +893,12 @@ function editor(data, autosize_modules) {
 	return [edgeSources, edgeTargets];
   }
   
-  //creates the inputs for the combined module
+  //creates the inputs for the combined module, returns how many inputs selected
   function createCombinedInputs(mods, module_data, edgeModules, module_defs){
 	  
 	var inputChoices = "";
 	var numInputTerminals = 0;
+	var numInputs = 0;
 	
 	 //create the input choices
 	for(var i = 0; i < edgeModules[0].length; i++){
@@ -898,7 +907,7 @@ function editor(data, autosize_modules) {
 		var curModule_name = curModule_data.module;
 		var curModule_def = curModule_data.module_def || module_defs[curModule_name] || {};
 		var curInput_terminals = curModule_data.inputs || curModule_def.inputs || []
-			
+				
 		//if module has input terminal
 		if(curInput_terminals.length > 0){
 				
@@ -910,33 +919,37 @@ function editor(data, autosize_modules) {
 	//if has no inputs to choose from
 	if(numInputTerminals === 0)
 		window.alert("No inputs to choose from");
-		
+	
 	//if inputs to choose from
 	else{
 			
 		var userInputChoices = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)"); 
 		
 		//if user doesn't select anything
-		if(userInputChoices === null || userInputChoices === ""){
-			
-			window.alert("No module for input selected");
-			return;
-		}
+		if(userInputChoices === null || userInputChoices === "")
+			window.alert("No module for input selected")
 		
-		var userInputs = userInputChoices.split(",");  
+		//if user chooses inputs	
+		else{
+		
+			var userInputs = userInputChoices.split(",");  
+			numInputs = userInputs.length;
 			
-		//add the inputs
-		for(var i = 0; i < userInputs.length; i++){
-				
-			var inputInfo = {
-				name: "combined_input",
-				target: []
-			}	
-				
-			inputInfo.target.push([userInputs[i], "input"]);
-			module_data.innerInputs.push(inputInfo);
+			//add the inputs
+			for(var i = 0; i < userInputs.length; i++){
+						
+				var inputInfo = {
+					name: "combined_input",
+					target: []
+				}	
+					
+				inputInfo.target.push([userInputs[i], "input"]);
+				module_data.innerInputs.push(inputInfo);
+			}
 		}
 	}	
+	
+	return Math.min(numInputTerminals, numInputs);
   }
   
   //creates the inputs for the combined module
@@ -944,6 +957,7 @@ function editor(data, autosize_modules) {
 	  
 	var outputChoices = "";  
 	var numOutputTerminals = 0;
+	var numOutputs = 0;
 	
 	//create the output choices
 	for(var i = 0; i < edgeModules[1].length; i++){
@@ -969,28 +983,32 @@ function editor(data, autosize_modules) {
 	else{
 			
 		var userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");
-		 
+		
 		//if user doesn't select anything
-		if(userOutputChoices === null || userOutputChoices === ""){
-			
+		if(userOutputChoices === null || userOutputChoices === "")
 			window.alert("No module for output selected");
-			return;
-		}
+		
+		//if user selects outputs	
+		else{
 			
-		var userOutputs = userOutputChoices.split(",");
+			var userOutputs = userOutputChoices.split(",");
+			numOutputs = userOutputs.length;
 			
-		//add the outputs
-		for(var i = 0; i < userOutputs.length; i++){
-				
-			var outputInfo = {    
-				name: "combined_input",
-				target: []
+			//add the outputs
+			for(var i = 0; i < userOutputs.length; i++){
+					
+				var outputInfo = {    
+					name: "combined_input",
+					target: []
+				}
+					
+				outputInfo.target.push([userOutputs[i], "output"]);
+				module_data.innerOutputs.push(outputInfo);
 			}
-				
-			outputInfo.target.push([userOutputs[i], "output"]);
-			module_data.innerOutputs.push(outputInfo);
 		}
 	}  
+	
+	return Math.min(numOutputTerminals, numOutputs);
   }
   
   //creates the inputs for the combined module
