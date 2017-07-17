@@ -394,7 +394,7 @@ function editor(data, autosize_modules) {
       
   //starts up the wire 		
   function wirestart() {
-	
+
     var module_el = this.parentNode.parentNode;
 	
 	//if the module is not wireable
@@ -1290,8 +1290,18 @@ function editor(data, autosize_modules) {
   //expands the combined module
   function expandCombinedModule(){
 	  
-	  
-	  
+	/*var mods = svg.datum().modules[0].innerModules; 
+	
+	//go through the modules
+	for(var i = 0; i < mods.length; i++){
+		
+		//var module_data =
+		console.log("WHOOOSH");
+		module(mods[i].module, mods[i].title);
+	}*/
+	
+	
+	//add the wires
   }
   
   //returns whether the connector has a node

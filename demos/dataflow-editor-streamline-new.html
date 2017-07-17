@@ -464,11 +464,24 @@ d3.select("#expand_combined_module").on("click", function() {
   //if has a combined module to expand
   if(modules.length	=== 1 && (modules[0].module === "ncnr.refl.combined_single_module"|| modules[0].module === "ncnr.refl.combined_template_module")){
 	
-	e.expandCombinedModule();
+	var innerModules = e.data()[0].modules[0].innerModules;
 	
-	//remove the module
+	//go through the modules
+	for(var i = 0; i < innerModules.length; i++){
+		
+		var title = innerModules[i].title;
+		var module = innerModules[i].module;
+		
+		e.data()[0].modules.push({module: module, title: title});
+		e.update();
+		this.selectedIndex=0;
+	}
+	
+	var module_id = e.data()[0].modules[0].module_id;
+			
+	//remove the combined module
 	e.svg().datum().modules = e.svg().datum().modules.filter(function(d) { 
-		return d.module_id != d.module_id;
+		return d.module_id != module_id
 	});
 			
 	e.update();
