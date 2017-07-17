@@ -376,11 +376,6 @@ function editor(data, autosize_modules) {
     return editor;
   }
   
-  //expands the combined module
-  editor.expandCombinedModule = function(){
-	expandCombinedModule();  
-  }
-  
   editor.update = update;
   editor.draw_wires = draw_wires;
   
@@ -1285,18 +1280,6 @@ function editor(data, autosize_modules) {
 	}
 	
 	return numUsedInputs;
-  }
-  
-  //expands the combined module
-  function expandCombinedModule(){
-	  
-	/*var innerWires = svg.datum().modules[0].innerWires;
-	
-	//add the wires
-	for(var i = 0; i < innerWires.length; i++){
-		
-		svg.datum().wires.push({source: innerWires[i].source, target: innerWires[i].target});
-	}*/
   }
   
   //returns whether the connector has a node

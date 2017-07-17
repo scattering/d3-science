@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style>
-
 html, body {
   height: 100%;
   overflow: hidden;
 }
-
 svg {
   width: 100%;
   height: 100%;
@@ -16,16 +14,13 @@ svg {
   margin-right: -1px;
   margin-bottom: -1px;
 }
-
 #editor_div { 
   width: 100%;
   height: 100%;
 }
-
 .highlight {
   fill-opacity: 0.6 !important;
 }
-
 .popup {
     position: absolute;
     background-color: #fff;
@@ -36,13 +31,11 @@ svg {
     font-family: arial, helvetica, sans-serif;
     margin: 5px 5px 2px 2px;
 }
-
 .popup ul {
     padding: 5px;
     list-style-type: none;
     margin: 0;
 }
-
 .popup ul li {
     margin-top: 2px;
     margin-bottom: 2px;
@@ -50,55 +43,43 @@ svg {
     margin-left: 0px;
     cursor: pointer;
 }
-
 .popup ul li:hover {
     background-color: LightGray;
 }
-
 .popup hr {
     margin: 0;
 }
-
 .input.label, .output.label {
     display: none;
 }
-
 /* styles for dataflow editor */
-
 g.module rect {
   stroke-width: 2px;
   stroke: blue;
   cursor: move;
   fill: white;
 }
-
 g.module rect.title {
   fill-opacity: 0;
 }
-
 g.module rect.terminal { 
   cursor: crosshair;
 }
-
 rect.terminal.output {
   fill: #88FFFF;
 }
-
 rect.terminal.input {
   fill:  #88FF88;
 }
-
 path.wire {
   fill: none;
   stroke-width: 5px;
   stroke: red;
   cursor: crosshair;
 }
-
 polygon.terminal.state {
   display: none;
 }
-
 </style>
 <body>
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
@@ -107,18 +88,14 @@ polygon.terminal.state {
 <script src="../lib/dataflow-editor-streamline-new.js"></script>
 <script src="ncnr.refl.module_defs.js"></script>
 <script>
-
 //window fired when page loads
 window.onload = function() {
-
 current_instrument = 'ncnr.refl';
-
 //coordinates
 var x0 = 150,
     y0 = 100, 
     dx = 135,
     dy = 40;
-
 //represents the module's options	
 var module_opts = [
 {
@@ -197,10 +174,8 @@ var module_opts = [
       "y": 140
     },
 ];
-
 //represents the example template
 example = {
-
     //modules: expand_module_defs(module_opts, 'ncnr.refl'),
     modules: module_opts,
     wires: [
@@ -246,10 +221,8 @@ example = {
     }
     ]
 }
-
 //expands the module definitions
 function expand_module_defs(modules, instrument) {
-
   var output = [],
       module_defs = instruments[instrument].modules;
 	  
@@ -264,14 +237,11 @@ function expand_module_defs(modules, instrument) {
   
   return output;
 }
-
 e = new dataflowEditorStreamlineNew.editor(null, true);
 e.module_defs(instruments[current_instrument].modules);
 e.data([{modules: [], wires: []}]);
 d3.select("#editor_div").call(e);
-
 var contextMenuShowing = false;
-
 //check the context menu
 e.svg().on('contextmenu', function (d,i) {
     
@@ -293,7 +263,6 @@ e.svg().on('contextmenu', function (d,i) {
 		
             d3.event.preventDefault();
             contextMenuShowing = true;
-
             //build the popup            
             popup = d3.select("#editor_div")
             .append("div")
@@ -335,7 +304,6 @@ e.svg().on('contextmenu', function (d,i) {
 		
             d3.event.preventDefault();
             contextMenuShowing = true;
-
             //build the popup            
             popup = d3.select("#editor_div")
             .append("div")
@@ -364,7 +332,6 @@ e.svg().on('contextmenu', function (d,i) {
         }      
     }
 })
-
 var module_defs = instruments[current_instrument].modules,
     module_names = (["Add new module:"]).concat(Object.keys(module_defs));
     
@@ -372,7 +339,6 @@ d3.select("#new_module").selectAll("option").data(module_names)
   .enter().append('option')
   .attr("module", function(d) {return d}) // function(d) {return module_defs[d].module})
   .text(function(d) {return module_defs[d].name})  
-
 //if a new module  
 d3.select('#new_module').on("change", function(ev) {
 	
@@ -383,20 +349,17 @@ d3.select('#new_module').on("change", function(ev) {
     e.update();
     this.selectedIndex=0;
 });
-
 //user clicked on show value
 d3.select("#show_value").on("click", function() { 
   	
   var win = window.open();
   win.document.write("<pre>" + JSON.stringify(e.export(), null, 2) + "</pre>");
 });
-
 //user clicked on show example
 d3.select("#show_example").on("click", function() {
   
   e.import(example);
 });
-
 //if user wants to combine modules
 d3.select("#combine_mods").on("click", function() {
 	
@@ -406,7 +369,6 @@ d3.select("#combine_mods").on("click", function() {
 	
 	var userDisplay = window.prompt("Enter:\ns : Single Module\nt : Module Template");
 	var modules = e.data()[0].modules;
-
 	//if user did not select anything
 	while(userDisplay !== "s" && userDisplay !== "S" && userDisplay !== "t" && userDisplay !== "T"){
 	
@@ -455,7 +417,6 @@ d3.select("#combine_mods").on("click", function() {
 		e.update();
 	}
 });
-
 //if user wants to expand the combined module
 d3.select("#expand_combined_module").on("click", function() {
 
@@ -466,6 +427,9 @@ d3.select("#expand_combined_module").on("click", function() {
 	
 	var innerModules = modules[0].innerModules;
 	var innerWires = modules[0].innerWires;
+	var edgeModules = getEdgeModules();
+	var curX = 100;
+	var curY = 100;
 	
 	//go through the modules
 	for(var i = 0; i < innerModules.length; i++){
@@ -473,13 +437,21 @@ d3.select("#expand_combined_module").on("click", function() {
 		var title = innerModules[i].title;
 		var module = innerModules[i].module;
 		
-		//to-do: fix the coordinates
-		
 		e.data()[0].modules.push({module: module, title: title});
+		
+		//to-do: have to update the coordinates here
+		
+		//if edge source module
+		if(i < edgeModules[0].length && edgeModules[0].indexOf(String(i)) !== -1){
+			
+			e.data()[0].modules[i + 1].x = 100;
+			e.data()[0].modules[i + 1].y = 100 + (parseInt(edgeModules[0][i]) * 50);
+		}
+		
 		e.update();
 		this.selectedIndex=0;
 	}
-	
+		
 	var module_id = e.data()[0].modules[0].module_id;
 			
 	//remove the combined module
@@ -498,6 +470,57 @@ d3.select("#expand_combined_module").on("click", function() {
   }
 });
 
+ //returns the edge modules (edgeSources, edgeTargets)
+  function getEdgeModules(){
+	
+	var mods = e.data()[0].modules[0].innerModules;
+	var wires = e.data()[0].modules[0].innerWires;  
+	var edgeSources = [];
+    var edgeTargets = [];
+		
+	//go through the wires
+    for (var i = 0; i < wires.length; i++) {
+		
+        var w = wires[i]; 
+		
+		var curSource = (String(w.source)).split(",")[0];    
+		var curTarget = (String(w.target)).split(",")[0];
+		
+		//if edge source is not there before
+		if(edgeSources.indexOf(curSource) === -1)
+			edgeSources.push(curSource);
+		
+		//if target source is not there before
+		if(edgeTargets.indexOf(curTarget) === -1)
+			edgeTargets.push(curTarget);
+    }
+	
+	//------------------------------------------
+	
+	//go through the sources
+	for(var i = 0; i < edgeSources.length; i++){
+			
+		//go through the targets
+		for(var j = 0; j < edgeTargets.length; j++){
+			
+			var curSource = edgeSources[i];
+			var curTarget = edgeTargets[j];
+			
+			//if module is a source and a target
+			if(curSource === curTarget){  
+			
+				edgeSources.splice(i, 1);     
+				edgeTargets.splice(j, 1);
+				
+				i--;
+				j--;
+			}
+		}
+	}
+
+	return [edgeSources, edgeTargets];
+  }
+
 //loads the data
 function loadData() {
 
@@ -515,10 +538,8 @@ function loadData() {
 	
     reader.readAsText(file);
 }
-
 d3.select("#upload_template").on("change", loadData);
 }
-
 </script>
 <div id="controls">
     <select id="new_module">
