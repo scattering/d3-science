@@ -460,7 +460,6 @@ d3.select("#combine_mods").on("click", function() {
 d3.select("#expand_combined_module").on("click", function() {
 
   var modules = e.data()[0].modules;
-  var wires = e.data()[0].wires;
   
   //if has a combined module to expand
   if(modules.length	=== 1 && (modules[0].module === "ncnr.refl.combined_single_module"|| modules[0].module === "ncnr.refl.combined_template_module")){
@@ -474,21 +473,12 @@ d3.select("#expand_combined_module").on("click", function() {
 		var title = innerModules[i].title;
 		var module = innerModules[i].module;
 		
-		//fix the coordinates
+		//to-do: fix the coordinates
 		
 		e.data()[0].modules.push({module: module, title: title});
 		e.update();
 		this.selectedIndex=0;
 	}
-	
-	//go through the wires
-	for(var i = 0; i < innerWires.length; i++){
-	
-		console.log("source: " + innerWires[i].source);
-	    e.data()[0].wires.push({source: innerWires[i].source, target: innerWires[i].target});   
-	}
-	
-	e.update(); //to-do: THIS IS REMOVING THE WIRES?!?!?
 	
 	var module_id = e.data()[0].modules[0].module_id;
 			
@@ -498,6 +488,13 @@ d3.select("#expand_combined_module").on("click", function() {
 	});
 			
 	e.update();
+	
+	//go through the wires
+	for(var i = 0; i < innerWires.length; i++){
+	
+	    e.data()[0].wires.push({source: innerWires[i].source, target: innerWires[i].target});   
+		e.update(); 
+	}
   }
 });
 

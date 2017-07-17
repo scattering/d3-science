@@ -842,7 +842,7 @@ function editor(data, autosize_modules) {
     var edgeTargets = [];
 		
 	//go through the wires
-    for (var i=0; i < wires.length; i++) {
+    for (var i = 0; i < wires.length; i++) {
 		
         var w = wires[i]; 
 		
@@ -862,9 +862,9 @@ function editor(data, autosize_modules) {
 			target: []
 		}	
 		
-		newWire.source.push(w.source);
-		newWire.target.push(w.target);
-	
+		newWire.source = w.source;
+		newWire.target = w.target;
+		
 		mods[mods.length-1].innerWires.push(newWire);
     }
 	
