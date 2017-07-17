@@ -498,7 +498,7 @@ function editor(data, autosize_modules) {
   
   //edits the module
   function module(module_data) {
-	
+
 	var group; // this will be the module group
     if (!('x' in module_data)) module_data.x = 100; //if does not have a x-coordinate
     if (!('y' in module_data)) module_data.y = 100; //if does not have a y-coordinate 
@@ -862,8 +862,8 @@ function editor(data, autosize_modules) {
 			target: []
 		}	
 		
-		newWire.source.push(w.source[0]);
-		newWire.target.push(w.target[0]);
+		newWire.source.push(w.source);
+		newWire.target.push(w.target);
 	
 		mods[mods.length-1].innerWires.push(newWire);
     }
@@ -1290,26 +1290,21 @@ function editor(data, autosize_modules) {
   //expands the combined module
   function expandCombinedModule(){
 	  
-	/*var mods = svg.datum().modules[0].innerModules; 
-	
-	//go through the modules
-	for(var i = 0; i < mods.length; i++){
-		
-		//var module_data =
-		console.log("WHOOOSH");
-		module(mods[i].module, mods[i].title);
-	}*/
-	
+	/*var innerWires = svg.datum().modules[0].innerWires;
 	
 	//add the wires
+	for(var i = 0; i < innerWires.length; i++){
+		
+		svg.datum().wires.push({source: innerWires[i].source, target: innerWires[i].target});
+	}*/
   }
   
   //returns whether the connector has a node
   function wire(wire_data) {
-	  
+	
     var connector = d3.select(this).append("path")
       .classed("wire", true);
-	  
+	
     return connector.node();
   }
   

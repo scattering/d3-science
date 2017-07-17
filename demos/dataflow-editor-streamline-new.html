@@ -393,7 +393,7 @@ d3.select("#show_value").on("click", function() {
 
 //user clicked on show example
 d3.select("#show_example").on("click", function() {
-
+  
   e.import(example);
 });
 
@@ -415,7 +415,7 @@ d3.select("#combine_mods").on("click", function() {
 			return;
 			
 		window.alert("Select which combined module type you want");
-		userDisplay = window.prompt("Enter:\n s : Single Module\nt : Module Template");
+		userDisplay = window.prompt("Enter:\ns : Single Module\nt : Module Template");
 	}
 		
 	//if single module display
@@ -460,11 +460,13 @@ d3.select("#combine_mods").on("click", function() {
 d3.select("#expand_combined_module").on("click", function() {
 
   var modules = e.data()[0].modules;
+  var wires = e.data()[0].wires;
   
   //if has a combined module to expand
   if(modules.length	=== 1 && (modules[0].module === "ncnr.refl.combined_single_module"|| modules[0].module === "ncnr.refl.combined_template_module")){
 	
-	var innerModules = e.data()[0].modules[0].innerModules;
+	var innerModules = modules[0].innerModules;
+	var innerWires = modules[0].innerWires;
 	
 	//go through the modules
 	for(var i = 0; i < innerModules.length; i++){
@@ -472,10 +474,21 @@ d3.select("#expand_combined_module").on("click", function() {
 		var title = innerModules[i].title;
 		var module = innerModules[i].module;
 		
+		//fix the coordinates
+		
 		e.data()[0].modules.push({module: module, title: title});
 		e.update();
 		this.selectedIndex=0;
 	}
+	
+	//go through the wires
+	for(var i = 0; i < innerWires.length; i++){
+	
+		console.log("source: " + innerWires[i].source);
+	    e.data()[0].wires.push({source: innerWires[i].source, target: innerWires[i].target});   
+	}
+	
+	e.update(); //to-do: THIS IS REMOVING THE WIRES?!?!?
 	
 	var module_id = e.data()[0].modules[0].module_id;
 			
