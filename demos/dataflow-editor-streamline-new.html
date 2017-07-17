@@ -427,26 +427,17 @@ d3.select("#expand_combined_module").on("click", function() {
 	
 	var innerModules = modules[0].innerModules;
 	var innerWires = modules[0].innerWires;
-	var edgeModules = getEdgeModules();
-	var curX = 100;
-	var curY = 100;
 	
 	//go through the modules
 	for(var i = 0; i < innerModules.length; i++){
 		
 		var title = innerModules[i].title;
 		var module = innerModules[i].module;
+		var xy = getXY(i);
 		
 		e.data()[0].modules.push({module: module, title: title});
-		
-		//to-do: have to update the coordinates here
-		
-		//if edge source module
-		if(i < edgeModules[0].length && edgeModules[0].indexOf(String(i)) !== -1){
-			
-			e.data()[0].modules[i + 1].x = 100;
-			e.data()[0].modules[i + 1].y = 100 + (parseInt(edgeModules[0][i]) * 50);
-		}
+		e.data()[0].modules[i + 1].x = xy[0];
+		e.data()[0].modules[i + 1].y = xy[1];
 		
 		e.update();
 		this.selectedIndex=0;
@@ -469,6 +460,43 @@ d3.select("#expand_combined_module").on("click", function() {
 	}
   }
 });
+
+//returns the x and y coordinates of the module in the expanded template
+function getXY(curLoc){
+
+	var edgeModules = getEdgeModules();
+	var x = 100;
+	var y = 100;
+		
+	//go through the rows
+	for(var i = 0; i < edgeModules[0].length; i++){  
+		
+		var curMod = parseInt(edgeModules[0][i]);
+		
+		//if found the module
+		if(curLoc === curMod)
+			return [x,y];	
+		
+		var curWires = getSourceWires(e.data()[0].modules[0].innerWires, curMod);
+		
+		//keep on going until reached the end of the row
+		while(curWires.length > 0){
+			
+			curMod = parseInt(String(curWires[0].target).split(",")[0]);
+			curWires = getSourceWires(e.data()[0].modules[0].innerWires, curMod);
+			x += 140;
+			
+			//if found the module
+			if(curLoc === curMod)
+				return [x,y];
+		}
+	
+		x = 100;
+		y += 50;
+	}
+	
+	return [x, y];
+}
 
  //returns the edge modules (edgeSources, edgeTargets)
   function getEdgeModules(){
@@ -521,6 +549,24 @@ d3.select("#expand_combined_module").on("click", function() {
 	return [edgeSources, edgeTargets];
   }
 
+ //returns the wire that the module is the source of
+ function getSourceWires(wires, source){
+	
+	var sourceWires = [];
+	
+	 //go through the wires
+	 for(var i = 0; i < wires.length; i++){
+	
+		var curWire = wires[i];		
+		
+		//if found the wire
+		if(String(curWire.source).split(",")[0] === String(source))
+			sourceWires.push(curWire);
+	  }
+	  
+	  return sourceWires;
+ }
+  
 //loads the data
 function loadData() {
 
