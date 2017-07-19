@@ -934,7 +934,7 @@ function editor(data, autosize_modules) {
 		
 			var userInputs = userInputChoices.split(",");  
 			
-			//keep on prompting user for a valid input
+			//keep on prompting user for valid inputs
 			while(!validElements(userInputs, edgeModules[0])){
 				
 				//if user doesn't select anything
@@ -970,13 +970,13 @@ function editor(data, autosize_modules) {
   }
   
   //returns whether the user's elements are valid
-  function validElements(userElements, edgeModules){
+  function validElements(userElements, validElements){
 	
 	//go through the user's inputs 
 	for(var i = 0; i < userElements.length; i++){
 	  
 		//if one of the inputs is not valid
-		if(!validElement(userElements[i], edgeModules))
+		if(!validElement(userElements[i], validElements))
 			return false;
 	}
 	
@@ -984,13 +984,13 @@ function editor(data, autosize_modules) {
   }
   
   //returns if the current element is valid
-  function validElement(curElement, edgeModules){
+  function validElement(curElement, validElements){
 	
 	//go through the possible inputs
-	for(var i = 0; i < edgeModules.length; i++){
+	for(var i = 0; i < validElements.length; i++){
 		  
 		//if input is valid  
-		if(curElement === String(edgeModules[i]))
+		if(curElement === String(validElements[i]))
 		   return true;
 	}  
 	 
@@ -1038,7 +1038,7 @@ function editor(data, autosize_modules) {
 			
 			var userOutputs = userOutputChoices.split(",");
 			
-			//keep on prompting user for a valid output
+			//keep on prompting user for valid outputs
 			while(!validElements(userOutputs, edgeModules[1])){
 				
 				//if user doesn't select anything
@@ -1077,6 +1077,7 @@ function editor(data, autosize_modules) {
   function createCombinedParameters(mods, module_data){
   
 	var parameterChoices = "";
+	var validParameters = [];
 	var numParameters  = 0;
 		
 	//go through the modules
@@ -1086,6 +1087,7 @@ function editor(data, autosize_modules) {
 		if(mods[i].config !== undefined){
 				
 			parameterChoices += i + " : " + JSON.stringify(mods[i].config) + "\n";
+			validParameters.push(i);
 			numParameters++;
 		}
 	}
@@ -1107,6 +1109,23 @@ function editor(data, autosize_modules) {
 		}
 			
 		var chosenParameters = userParameters.split(",");
+		
+		//keep on prompting user for valid parameters
+		while(!validElements(chosenParameters, validParameters)){
+				
+			//if user doesn't select anything
+			if(userParameters === null || userParameters === ""){
+					
+				window.alert("No parameters selected")
+				break;
+			}
+				
+			window.alert("Parameters are not valid");
+				
+			userParameters = window.prompt("Choose which parameters will be exposed:\n" + parameterChoices + "\n(Example : 3,4,5)");
+			chosenParameters = userParameters.split(","); 
+		}
+			
 		var displayParameters = [];
 			
 		//go through the parameters
