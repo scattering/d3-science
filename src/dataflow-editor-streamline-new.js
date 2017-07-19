@@ -935,10 +935,11 @@ function editor(data, autosize_modules) {
 			var userInputs = userInputChoices.split(",");  
 			
 			//keep on prompting user for a valid input
-			while(!validInputs(userInputs, edgeModules)){
+			while(!validElements(userInputs, edgeModules[0])){
 				
 				//if user doesn't select anything
 				if(userInputChoices === null || userInputChoices === ""){
+					
 					window.alert("No module for input selected")
 					break;
 				}
@@ -968,30 +969,28 @@ function editor(data, autosize_modules) {
 	return Math.min(numInputTerminals, numInputs);
   }
   
-  //returns whether the user's inputs are valid
-  function validInputs(userInputs, edgeModules){
-	  
-	var isInput = [];
+  //returns whether the user's elements are valid
+  function validElements(userElements, edgeModules){
 	
 	//go through the user's inputs 
-	for(var i = 0; i < userInputs.length; i++){
+	for(var i = 0; i < userElements.length; i++){
 	  
 		//if one of the inputs is not valid
-		if(!validInput(userInputs[i], edgeModules))
+		if(!validElement(userElements[i], edgeModules))
 			return false;
 	}
 	
 	return true;
   }
   
-  //returns if the current input is valid
-  function validInput(curInput, edgeModules){
+  //returns if the current element is valid
+  function validElement(curElement, edgeModules){
 	
 	//go through the possible inputs
-	for(var i = 0; i < edgeModules[0].length; i++){
+	for(var i = 0; i < edgeModules.length; i++){
 		  
 		//if input is valid  
-		if(curInput === String(edgeModules[0][i]))
+		if(curElement === String(edgeModules[i]))
 		   return true;
 	}  
 	 
@@ -1038,6 +1037,23 @@ function editor(data, autosize_modules) {
 		else{
 			
 			var userOutputs = userOutputChoices.split(",");
+			
+			//keep on prompting user for a valid output
+			while(!validElements(userOutputs, edgeModules[1])){
+				
+				//if user doesn't select anything
+				if(userOutputChoices === null || userOutputChoices === ""){
+					
+					window.alert("No module for output selected")
+					break;
+				}
+				
+				window.alert("Outputs are not valid");
+				
+				userOutputChoices = window.prompt("Add the output terminals:\n" + outputChoices + "\n(Example : 3,4,5)");
+				userOutputs = userOutputChoices.split(","); 
+			}
+			
 			numOutputs = userOutputs.length;
 			
 			//add the outputs
