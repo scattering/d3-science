@@ -933,6 +933,22 @@ function editor(data, autosize_modules) {
 		else{
 		
 			var userInputs = userInputChoices.split(",");  
+			
+			//keep on prompting user for a valid input
+			while(!validInputs(userInputs, edgeModules)){
+				
+				//if user doesn't select anything
+				if(userInputChoices === null || userInputChoices === ""){
+					window.alert("No module for input selected")
+					break;
+				}
+				
+				window.alert("Inputs are not valid");
+				
+				userInputChoices = window.prompt("Add the input terminals:\n" + inputChoices + "\n(Example : 3,4,5)");
+				userInputs = userInputChoices.split(","); 
+			}
+			
 			numInputs = userInputs.length;
 			
 			//add the inputs
@@ -950,6 +966,36 @@ function editor(data, autosize_modules) {
 	}	
 	
 	return Math.min(numInputTerminals, numInputs);
+  }
+  
+  //returns whether the user's inputs are valid
+  function validInputs(userInputs, edgeModules){
+	  
+	var isInput = [];
+	
+	//go through the user's inputs 
+	for(var i = 0; i < userInputs.length; i++){
+	  
+		//if one of the inputs is not valid
+		if(!validInput(userInputs[i], edgeModules))
+			return false;
+	}
+	
+	return true;
+  }
+  
+  //returns if the current input is valid
+  function validInput(curInput, edgeModules){
+	
+	//go through the possible inputs
+	for(var i = 0; i < edgeModules[0].length; i++){
+		  
+		//if input is valid  
+		if(curInput === String(edgeModules[0][i]))
+		   return true;
+	}  
+	 
+	return false; 
   }
   
   //creates the inputs for the combined module
