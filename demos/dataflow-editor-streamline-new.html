@@ -438,18 +438,8 @@ d3.select("#combine_mods").on("click", function() {
 	
 	//----------------------------------
 	
-	//remove all of the modules except for the combined module
-	for(var i = 0; i < modules.length - 1; i++){		
-			
-		var module_id = i;
-			
-		//remove the module
-		e.svg().datum().modules = e.svg().datum().modules.filter(function(d) { 
-			return d.module_id != module_id
-		});
-			
-		e.update();
-	}
+	e.svg().datum().modules.splice(0, modules.length -1);
+	e.update();
 });
 
 //if user wants to expand the combined module
@@ -480,11 +470,7 @@ d3.select("#expand_combined_module").on("click", function() {
 		
 	var module_id = e.data()[0].modules[0].module_id;
 			
-	//remove the combined module
-	e.svg().datum().modules = e.svg().datum().modules.filter(function(d) { 
-		return d.module_id != module_id
-	});
-			
+	e.svg().datum().modules.splice(0, 1);
 	e.update();
 	
 	//go through the wires
@@ -493,6 +479,7 @@ d3.select("#expand_combined_module").on("click", function() {
 	    e.data()[0].wires.push({source: innerWires[i].source, target: innerWires[i].target});   
 		e.update(); 
 	}
+	
   }
 });
 
