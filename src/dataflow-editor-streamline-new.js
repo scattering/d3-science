@@ -997,7 +997,7 @@ function editor(data, autosize_modules) {
 	return false; 
   }
   
-  //creates the inputs for the combined module
+  //creates the outputs for the combined module
   function createCombinedOutputs(mods, module_data, edgeModules, module_defs){
 	  
 	var outputChoices = "";  
@@ -1073,8 +1073,20 @@ function editor(data, autosize_modules) {
 	return Math.min(numOutputTerminals, numOutputs);
   }
   
-  //creates the inputs for the combined module --> all possible parameters can be exposed
+   //creates the parameters for the combined module
   function createCombinedParameters(mods, module_data){
+	  
+	//go through the modules for the configs
+	for(var i = 0; i < mods.length - 1; i++){
+			
+		//if the current module has configs
+		if(mods[i].config !== undefined)
+			module_data.parameters.push([i, mods[i].config]);
+	}
+  }
+  
+  //creates the config for the combined module
+  function createCombinedConfigs(mods, module_data){
   
 	var parameterChoices = "";
 	var validParameters = [];
@@ -1139,20 +1151,8 @@ function editor(data, autosize_modules) {
 			}
 				
 			curPar.target.push([chosenParameters[i], mods[parseInt(chosenParameters[i])].config]); 
-			module_data.parameters.push(curPar);
+			module_data.config.push(curPar);
 		}
-	}
-  }
-  
-  //creates the inputs for the combined module
-  function createCombinedConfigs(mods, module_data){
-	  
-	//go through the modules for the configs
-	for(var i = 0; i < mods.length - 1; i++){
-			
-		//if the current module has configs
-		if(mods[i].config !== undefined)
-			module_data.config.push([i, mods[i].config]);
 	}
   }
   
