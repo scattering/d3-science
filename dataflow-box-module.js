@@ -51,7 +51,14 @@ function module(argopts) {
     y: 100,
     width: 'auto',
     height: 'auto',
+	innerModules: [],
+	innerInputs: [],
+	innerOutputs: [],
+	innerWires: [],
+	config: [],
+	parameters = [];
   }
+ 
   jQuery.extend(true, options, argopts);
   
   drag = d3.behavior.drag()
@@ -94,7 +101,7 @@ function module(argopts) {
       .data(options.title.split("\n"))
       .enter().append("tspan")
         .classed("module title sublines", true)
-        .attr("x", padding)
+        .attr("x", padding) 
         .attr("dy", 20)
         .text(function(d) {return d});
 
@@ -104,7 +111,7 @@ function module(argopts) {
     titleborder
       .attr("width", width)
       .attr("height", height)
-      .attr("x", 0)
+      .attr("x", 0) 
       .attr("y", 0)
       
     var inputs = group.selectAll(".input")

@@ -89,7 +89,7 @@ var module_defs_list =
     "description": "Fit detector dead time constants (paralyzing and non-paralyzing) frommeasurement of attenuated and unattenuated data for a range of count rates.", 
     "fields": [
       {
-        "multiple": false, 
+        "multiple": false,
         "description": "Measured tube", 
         "datatype": "detector|monitor", 
         "required": false, 
@@ -1189,6 +1189,68 @@ var module_defs_list =
     ], 
     "action_id": "reflred.steps.steps.super_load", 
     "id": "ncnr.refl.super_load", 
+    "icon": null
+  },
+  {
+    "inputs": [
+      {
+        "multiple": true, 
+        "description": "combined single module", 
+        "datatype": "ncnr.refl.combined_single_module", 
+        "required": false, 
+        "label": "Data", 
+        "default": null, 
+        "id": "data"
+      }
+    ], 
+    "description": "combined single module", 
+    "fields": [], 
+    "name": "Combined Single Module", 
+    "version": "2017-26-6", 
+    "outputs": [
+      {
+        "multiple": true, 
+        "description": "combined single module", 
+        "datatype": "ncnr.refl.combined_single_module", 
+        "required": false, 
+        "label": "Output", 
+        "default": null, 
+        "id": "output"
+      }
+    ], 
+    "action_id": "reflred.steps.steps.combined_single_module", 
+    "id": "ncnr.refl.combined_single_module", 
+    "icon": null
+  },
+  {
+    "inputs": [
+      {
+        "multiple": true, 
+        "description": "combined template module", 
+        "datatype": "ncnr.refl.combined_template_module", 
+        "required": false, 
+        "label": "Data", 
+        "default": null, 
+        "id": "data"
+      }
+    ], 
+    "description": "combined module", 
+    "fields": [], 
+    "name": "Combined Template Module", 
+    "version": "2017-26-6", 
+    "outputs": [
+      {
+        "multiple": true, 
+        "description": "combined template module", 
+        "datatype": "ncnr.refl.combined_template_module", 
+        "required": false, 
+        "label": "Output", 
+        "default": null, 
+        "id": "output"
+      }
+    ], 
+    "action_id": "reflred.steps.steps.combined_template_module", 
+    "id": "ncnr.refl.combined_template_module", 
     "icon": null
   }
 ]

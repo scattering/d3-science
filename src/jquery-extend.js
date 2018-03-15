@@ -58,6 +58,7 @@ var jQuery = {
 };
 
 function extend() {
+
   var options, name, src, copy, copyIsArray, clone, target = arguments[0] || {},
   i = 1,
   length = arguments.length,
@@ -75,8 +76,11 @@ function extend() {
     --i;
   }
   for (i; i < length; i++) {
+	  
     if ((options = arguments[i]) != null) {
+		
       for (name in options) {
+		  
         src = target[name];
         copy = options[name];
         if (target === copy) {

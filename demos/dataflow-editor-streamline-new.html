@@ -5,6 +5,7 @@ html, body {
   height: 100%;
   overflow: hidden;
 }
+
 svg {
   width: 100%;
   height: 100%;
@@ -19,19 +20,22 @@ svg {
   width: 100%;
   height: 100%;
 }
+
 .highlight {
   fill-opacity: 0.6 !important;
 }
+
 .popup {
     position: absolute;
     background-color: #fff;
-    /*width: 200px;*/
+    /*width: 200px;*/ 
     border: 1px #ccc solid;
     border-radius: 6px;
     box-shadow: #333 2px 2px 4px;
     font-family: arial, helvetica, sans-serif;
     margin: 5px 5px 2px 2px;
 }
+
 .popup ul {
     padding: 5px;
     list-style-type: none;
@@ -45,6 +49,7 @@ svg {
     margin-left: 0px;
     cursor: pointer;
 }
+
 .popup ul li:hover {
     background-color: LightGray;
 }
@@ -58,7 +63,6 @@ svg {
 }
 
 /* styles for dataflow editor */
-
 g.module rect {
   stroke-width: 2px;
   stroke: blue;
@@ -101,15 +105,18 @@ polygon.terminal.state {
 <script src="../lib/dataflow-editor-streamline-new.js"></script>
 <script src="ncnr.refl.module_defs.js"></script>
 <script>
-window.onload = function() {
 
+//window fired when page loads
+window.onload = function() {
 current_instrument = 'ncnr.refl';
 
+//coordinates
 var x0 = 150,
     y0 = 100, 
     dx = 135,
     dy = 40;
-
+	
+//represents the module's options	
 var module_opts = [
 {
       "title": "load spec long title",
@@ -185,10 +192,12 @@ var module_opts = [
       "module": "ncnr.refl.divide_intensity",
       "x": 690,
       "y": 140
-    }
+    },
 ];
 
+//represents the example template
 example = {
+
     //modules: expand_module_defs(module_opts, 'ncnr.refl'),
     modules: module_opts,
     wires: [
@@ -235,38 +244,53 @@ example = {
     ]
 }
 
+//expands the module definitions
 function expand_module_defs(modules, instrument) {
+
   var output = [],
       module_defs = instruments[instrument].modules;
+	  
+  //go through the modules
   for (var i=0; i<modules.length; i++) {
+  
     var m = modules[i];
     output[i] = m;
     output[i].terminals = module_defs[m.module].terminals;
     output[i].fields = module_defs[m.module].fields;
   }
-  return output
+  
+  return output;
 }
 
 e = new dataflowEditorStreamlineNew.editor(null, true);
 e.module_defs(instruments[current_instrument].modules);
 e.data([{modules: [], wires: []}]);
 d3.select("#editor_div").call(e);
-
-
 var contextMenuShowing = false;
 
-e.svg().on('contextmenu',function (d,i) {
+//check the context menu
+e.svg().on('contextmenu', function (d,i) {
+    
+	//if the context menu is showing
     if (contextMenuShowing) {
+	
         d3.event.preventDefault();
         d3.select(".popup").remove();
         contextMenuShowing = false;
-    } else {
-        d3_target = d3.select(d3.event.target);
+    }
+	
+	//if the context menu is not showing
+	else{
+	
+		d3_target = d3.select(d3.event.target);
+		
+		//if a wire
         if (d3_target.classed("wire")) {
+		
             d3.event.preventDefault();
             contextMenuShowing = true;
-
-            // Build the popup            
+			
+            //build the popup            
             popup = d3.select("#editor_div")
             .append("div")
             .attr("class", "popup")
@@ -274,29 +298,41 @@ e.svg().on('contextmenu',function (d,i) {
             .style("top", d3.event.y + "px")
             .append("ul")
             
+			//if deleting the wire
             popup.append("li").text("delete").on("click", function() {
+				
                 var active_data = d3_target.datum();
                 var parentNode = d3_target.node().parentNode;
                 var wires = d3.select(parentNode).datum().wires;
+				
+				//go through the wires
                 for (var i=0; i<wires.length; i++) {
+				
                     var w = wires[i]; 
-                    if (w.source == active_data.source && w.target == active_data.target) {
+					
+					//if the source and target are active
+                    if (w.source == active_data.source && w.target == active_data.target){ 
+					
                         wires.splice(i,1);
                         break;
                     }
                 };
+				
                 parentNode.update();
                 d3.select(".popup").remove(); 
                 contextMenuShowing=false;
-                
             });
+			
             console.log(popup);
         }
+		
+		//if removing a node
         else if (d3_target.classed("title")) {
+		
             d3.event.preventDefault();
             contextMenuShowing = true;
-
-            // Build the popup            
+			
+            //build the popup            
             popup = d3.select("#editor_div")
             .append("div")
             .attr("class", "popup")
@@ -306,16 +342,22 @@ e.svg().on('contextmenu',function (d,i) {
             
             popup.append("li").text("configure").on("click", function() {alert("implement configure"); d3.select(".popup").remove(); contextMenuShowing=false;});
             popup.append("hr")
+			
+			//if deleting
             popup.append("li").text("delete").on("click", function() {
+			
                 console.log(d3_target.datum().module_id);
                 var module_id = d3_target.datum().module_id;
-                e.svg().datum().modules = e.svg().datum().modules.filter(function(d) { return d.module_id != module_id});
+				
+                e.svg().datum().modules = e.svg().datum().modules.filter(function(d) { 
+					return d.module_id != module_id
+				});
+				
                 d3.select(".popup").remove(); 
                 e.update();
                 contextMenuShowing=false;
             });
-        }
-                     
+        }      
     }
 })
 
@@ -327,38 +369,248 @@ d3.select("#new_module").selectAll("option").data(module_names)
   .attr("module", function(d) {return d}) // function(d) {return module_defs[d].module})
   .text(function(d) {return module_defs[d].name})  
   
+//if a new module  
 d3.select('#new_module').on("change", function(ev) {
+	
     var title = this.value,
         module = module_names[this.selectedIndex];
+		
     e.data()[0].modules.push({module: module, title: title});
     e.update();
     this.selectedIndex=0;
 });
 
+//user clicked on show value
 d3.select("#show_value").on("click", function() { 
+  	
   var win = window.open();
   win.document.write("<pre>" + JSON.stringify(e.export(), null, 2) + "</pre>");
 });
 
+//user clicked on show example
 d3.select("#show_example").on("click", function() {
+  
   e.import(example);
 });
 
+//if user wants to combine modules
+d3.select("#combine_mods").on("click", function() {
+	
+	//if no template to combine
+	if(e.svg().datum().wires.length === 0)
+		return;
+	
+	var userDisplay = window.prompt("Enter:\ns : Single Module\nt : Module Template");
+	var modules = e.data()[0].modules;
+	
+	//if user did not select anything
+	while(userDisplay !== "s" && userDisplay !== "S" && userDisplay !== "t" && userDisplay !== "T"){
+	
+		//if user doesn't want to make a combined module
+		if(userDisplay === null || userDisplay === "")
+			return;
+			
+		window.alert("Select which combined module type you want");
+		userDisplay = window.prompt("Enter:\ns : Single Module\nt : Module Template");
+	}
+		
+	//if single module display
+	if(userDisplay === "s" || userDisplay == "S"){
+		
+		var title = "Combined Single Module";
+		var module = "ncnr.refl.combined_single_module"; 
+		
+		e.data()[0].modules.push({module: module, title: title}); 
+		e.update();
+		this.selectedIndex=0;
+	}
+	
+	//if module template display
+	else{
+	
+		var title = "Combined Template Module";
+		var module = "ncnr.refl.combined_template_module"; 
+		
+		e.data()[0].modules.push({module: module, title: title});
+		e.update();
+		this.selectedIndex=0;
+	}
+	
+	//----------------------------------
+	
+	e.svg().datum().modules.splice(0, modules.length -1);
+	e.update();
+});
+
+//if user wants to expand the combined module
+d3.select("#expand_combined_module").on("click", function() {
+  
+  var modules = e.data()[0].modules;
+  
+  //if has a combined module to expand
+  if(modules.length	=== 1 && (modules[0].module === "ncnr.refl.combined_single_module"|| modules[0].module === "ncnr.refl.combined_template_module")){
+	
+	var innerModules = modules[0].innerModules;
+	var innerWires = modules[0].innerWires;
+	
+	//go through the modules
+	for(var i = 0; i < innerModules.length; i++){
+		
+		var title = innerModules[i].title;
+		var module = innerModules[i].module;
+		var xy = getXY(i);
+		
+		e.data()[0].modules.push({module: module, title: title});
+		e.data()[0].modules[i + 1].x = xy[0];
+		e.data()[0].modules[i + 1].y = xy[1];
+		
+		e.update();
+		this.selectedIndex=0;
+	}
+		
+	var module_id = e.data()[0].modules[0].module_id;
+			
+	e.svg().datum().modules.splice(0, 1);
+	e.update();
+	
+	//go through the wires
+	for(var i = 0; i < innerWires.length; i++){
+	
+	    e.data()[0].wires.push({source: innerWires[i].source, target: innerWires[i].target});   
+		e.update(); 
+	}
+	
+  }
+});
+
+//returns the x and y coordinates of the module in the expanded template
+function getXY(curLoc){
+
+	var edgeModules = getEdgeModules();
+	var x = 100;
+	var y = 100;
+		
+	//go through the rows
+	for(var i = 0; i < edgeModules[0].length; i++){  
+		
+		var curMod = parseInt(edgeModules[0][i]);
+		
+		//if found the module
+		if(curLoc === curMod)
+			return [x,y];	
+		
+		var curWires = getSourceWires(e.data()[0].modules[0].innerWires, curMod);
+		
+		//keep on going until reached the end of the row
+		while(curWires.length > 0){
+			
+			curMod = parseInt(String(curWires[0].target).split(",")[0]);
+			curWires = getSourceWires(e.data()[0].modules[0].innerWires, curMod);
+			x += 140;
+			
+			//if found the module
+			if(curLoc === curMod)
+				return [x,y];
+		}
+	
+		x = 100;
+		y += 50;
+	}
+	
+	return [x, y];
+}
+
+ //returns the edge modules (edgeSources, edgeTargets)
+  function getEdgeModules(){
+	
+	var mods = e.data()[0].modules[0].innerModules;
+	var wires = e.data()[0].modules[0].innerWires;  
+	var edgeSources = [];
+    var edgeTargets = [];
+		
+	//go through the wires
+    for (var i = 0; i < wires.length; i++) {
+		
+        var w = wires[i]; 
+		
+		var curSource = (String(w.source)).split(",")[0];    
+		var curTarget = (String(w.target)).split(",")[0];
+		
+		//if edge source is not there before
+		if(edgeSources.indexOf(curSource) === -1)
+			edgeSources.push(curSource);
+		
+		//if target source is not there before
+		if(edgeTargets.indexOf(curTarget) === -1)
+			edgeTargets.push(curTarget);
+    }
+	
+	//------------------------------------------
+	
+	//go through the sources
+	for(var i = 0; i < edgeSources.length; i++){
+			
+		//go through the targets
+		for(var j = 0; j < edgeTargets.length; j++){
+			
+			var curSource = edgeSources[i];
+			var curTarget = edgeTargets[j];
+			
+			//if module is a source and a target
+			if(curSource === curTarget){  
+			
+				edgeSources.splice(i, 1);     
+				edgeTargets.splice(j, 1);
+				
+				i--;
+				j--;
+			}
+		}
+	}
+
+	return [edgeSources, edgeTargets];
+  }
+
+ //returns the wire that the module is the source of
+ function getSourceWires(wires, source){
+	
+	var sourceWires = [];
+	
+	 //go through the wires
+	 for(var i = 0; i < wires.length; i++){
+	
+		var curWire = wires[i];		
+		
+		//if found the wire
+		if(String(curWire.source).split(",")[0] === String(source))
+			sourceWires.push(curWire);
+	  }
+	  
+	  return sourceWires;
+ }
+  
+//loads the data
 function loadData() {
+
     var file = document.getElementById('upload_template').files[0]; // only one file allowed
     datafilename = file.name;
     var result = null;
     var reader = new FileReader();
+	
+	//load the reader
     reader.onload = function(ev) {
-        var template = JSON.parse(this.result);
-        e.import(template);
+	
+       var template = JSON.parse(this.result);
+       e.import(template);
     }
+	
     reader.readAsText(file);
 }
 
 d3.select("#upload_template").on("change", loadData);
 
 }
+
 </script>
 <div id="controls">
     <select id="new_module">
@@ -367,6 +619,8 @@ d3.select("#upload_template").on("change", loadData);
     <button id="show_example">Load example template</button>
     <input id="upload_template" type="file" multiple="false" name="upload_template" />
     <button id="show_value">Show data</button>
+	<button id="combine_mods">Combine Modules</button>
+	<button id="expand_combined_module">Expand Combined Module</button>
 </div>
 <div id="editor_div">
 </div>
