@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <style>
+  
 html, body {
   height: 100%;
   overflow: hidden;
 }
+  
 svg {
   width: 100%;
   height: 100%;
@@ -14,14 +16,16 @@ svg {
   margin-right: -1px;
   margin-bottom: -1px;
 }
-
+  
 #editor_div { 
   width: 100%;
   height: 100%;
 }
+  
 .highlight {
   fill-opacity: 0.6 !important;
 }
+  
 .popup {
     position: absolute;
     background-color: #fff;
@@ -32,12 +36,13 @@ svg {
     font-family: arial, helvetica, sans-serif;
     margin: 5px 5px 2px 2px;
 }
+  
 .popup ul {
     padding: 5px;
     list-style-type: none;
     margin: 0;
 }
-
+  
 .popup ul li {
     margin-top: 2px;
     margin-bottom: 2px;
@@ -45,54 +50,57 @@ svg {
     margin-left: 0px;
     cursor: pointer;
 }
+  
 .popup ul li:hover {
     background-color: LightGray;
 }
-
+  
 .popup hr {
     margin: 0;
 }
-
+  
 .input.label, .output.label {
     display: none;
 }
-
+  
 /* styles for dataflow editor */
-
+  
+//create class for new combined module
+  
 g.module rect {
   stroke-width: 2px;
   stroke: blue;
   cursor: move;
   fill: white;
 }
-
+  
 g.module rect.title {
   fill-opacity: 0;
 }
-
+  
 g.module rect.terminal { 
   cursor: crosshair;
 }
-
+  
 rect.terminal.output {
   fill: #88FFFF;
 }
-
+  
 rect.terminal.input {
   fill:  #88FF88;
 }
-
+  
 path.wire {
   fill: none;
   stroke-width: 5px;
   stroke: red;
   cursor: crosshair;
 }
-
+  
 polygon.terminal.state {
   display: none;
 }
-
+  
 </style>
 <body>
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
@@ -101,15 +109,15 @@ polygon.terminal.state {
 <script src="../lib/dataflow-editor-streamline-new.js"></script>
 <script src="ncnr.refl.module_defs.js"></script>
 <script>
+  
 window.onload = function() {
-
+  
 current_instrument = 'ncnr.refl';
-
 var x0 = 150,
     y0 = 100, 
     dx = 135,
     dy = 40;
-
+  
 var module_opts = [
 {
       "title": "load spec long title",
@@ -187,7 +195,7 @@ var module_opts = [
       "y": 140
     }
 ];
-
+  
 example = {
     //modules: expand_module_defs(module_opts, 'ncnr.refl'),
     modules: module_opts,
@@ -234,38 +242,44 @@ example = {
     }
     ]
 }
-
+  
 function expand_module_defs(modules, instrument) {
+  
   var output = [],
       module_defs = instruments[instrument].modules;
+  
   for (var i=0; i<modules.length; i++) {
     var m = modules[i];
     output[i] = m;
     output[i].terminals = module_defs[m.module].terminals;
     output[i].fields = module_defs[m.module].fields;
   }
+  
   return output
 }
-
+  
 e = new dataflowEditorStreamlineNew.editor(null, true);
 e.module_defs(instruments[current_instrument].modules);
 e.data([{modules: [], wires: []}]);
 d3.select("#editor_div").call(e);
-
-
 var contextMenuShowing = false;
-
+  
 e.svg().on('contextmenu',function (d,i) {
+  
     if (contextMenuShowing) {
         d3.event.preventDefault();
         d3.select(".popup").remove();
         contextMenuShowing = false;
-    } else {
+    } 
+    else {
+      
         d3_target = d3.select(d3.event.target);
+      
         if (d3_target.classed("wire")) {
+          
             d3.event.preventDefault();
             contextMenuShowing = true;
-
+          
             // Build the popup            
             popup = d3.select("#editor_div")
             .append("div")
@@ -278,24 +292,30 @@ e.svg().on('contextmenu',function (d,i) {
                 var active_data = d3_target.datum();
                 var parentNode = d3_target.node().parentNode;
                 var wires = d3.select(parentNode).datum().wires;
+              
                 for (var i=0; i<wires.length; i++) {
                     var w = wires[i]; 
+                  
                     if (w.source == active_data.source && w.target == active_data.target) {
                         wires.splice(i,1);
                         break;
                     }
                 };
+              
                 parentNode.update();
                 d3.select(".popup").remove(); 
                 contextMenuShowing=false;
                 
             });
+          
             console.log(popup);
         }
+      
         else if (d3_target.classed("title")) {
+          
             d3.event.preventDefault();
             contextMenuShowing = true;
-
+          
             // Build the popup            
             popup = d3.select("#editor_div")
             .append("div")
@@ -307,6 +327,7 @@ e.svg().on('contextmenu',function (d,i) {
             popup.append("li").text("configure").on("click", function() {alert("implement configure"); d3.select(".popup").remove(); contextMenuShowing=false;});
             popup.append("hr")
             popup.append("li").text("delete").on("click", function() {
+              
                 console.log(d3_target.datum().module_id);
                 var module_id = d3_target.datum().module_id;
                 e.svg().datum().modules = e.svg().datum().modules.filter(function(d) { return d.module_id != module_id});
@@ -318,7 +339,7 @@ e.svg().on('contextmenu',function (d,i) {
                      
     }
 })
-
+  
 var module_defs = instruments[current_instrument].modules,
     module_names = (["Add new module:"]).concat(Object.keys(module_defs));
     
@@ -334,31 +355,46 @@ d3.select('#new_module').on("change", function(ev) {
     e.update();
     this.selectedIndex=0;
 });
-
+  
 d3.select("#show_value").on("click", function() { 
   var win = window.open();
   win.document.write("<pre>" + JSON.stringify(e.export(), null, 2) + "</pre>");
 });
-
+  
 d3.select("#show_example").on("click", function() {
   e.import(example);
 });
-
+  
+//convert the template into a single module  
+d3.select("#combine_mods").on("click", function() {
+  
+  //if nothing to combine, do nothing
+  
+  //inputs have to have outputs
+  
+  //combine and create a new mod
+  
+  //remove the previous mods
+});
+  
 function loadData() {
+  
     var file = document.getElementById('upload_template').files[0]; // only one file allowed
     datafilename = file.name;
     var result = null;
     var reader = new FileReader();
+  
     reader.onload = function(ev) {
         var template = JSON.parse(this.result);
         e.import(template);
     }
+    
     reader.readAsText(file);
 }
-
+  
 d3.select("#upload_template").on("change", loadData);
-
 }
+  
 </script>
 <div id="controls">
     <select id="new_module">
@@ -367,6 +403,7 @@ d3.select("#upload_template").on("change", loadData);
     <button id="show_example">Load example template</button>
     <input id="upload_template" type="file" multiple="false" name="upload_template" />
     <button id="show_value">Show data</button>
+    <button id = "combine_mods">Combine modules</button> //add button to combine modules
 </div>
 <div id="editor_div">
 </div>
